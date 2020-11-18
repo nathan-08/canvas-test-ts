@@ -9,6 +9,7 @@ import {
   IOController,
   AnimationController,
   Animation,
+  ImageAsset,
 } from './lib';
 
 window.onload = main;
@@ -173,10 +174,12 @@ async function main(): Promise<void> {
     roomMap.render( ctx );
 
     ctx.drawImage( walkingImgs[frameIndex], p.x, p.y );
+
     delta = performance.now() - timestamp;
-    if( delta > 1 ) console.log( `--> gameLoop took ${delta}ms` );
+    if( delta > 1 ) console.warn( `--> gameLoop took ${delta}ms` );
     requestAnimationFrame( gameLoop );
   }
+
   gameLoop();
 }
 
@@ -193,80 +196,3 @@ async function imgdata_to_image(
   await new Promise( ( resolve ) => img.addEventListener( 'load', resolve ) );
   return img;
 }
-
-class ImageAsset {
-  public readonly img;
-  constructor( path: string ) {
-    this.img = new Image();
-    this.img.src = path;
-  }
-  public async wait(): Promise<void> {
-    if ( this.img.complete ) {
-      return Promise.resolve();
-    } else
-      return new Promise( ( resolve ) => {
-        this.img.addEventListener( 'load', () => resolve() );
-      } );
-  }
-}
-
-// if ( animationCounter === 0 ) {
-//   const keys = ioController.getKeys();
-//   p.isMoving = false;
-//   // ready to initiate new animation
-//   if ( keys.up || keys.down || keys.left || keys.right ) {
-//     animationCounter = 16;
-//     if ( keys.up ) {
-//       p.dir = Direction.up;
-//       if( roomMap.checkTile( p.tilePos.x, p.tilePos.y - 1 ) ) {
-//         p.tilePos.y--;
-//         p.isMoving = true;
-//       }
-//     }
-//     if ( keys.down ) {
-//       p.dir = Direction.down;
-//       if( roomMap.checkTile( p.tilePos.x, p.tilePos.y + 1 ) ) {
-//         p.tilePos.y++;
-//         p.isMoving = true;
-//       }
-//     }
-//     if ( keys.left ) {
-//       p.dir = Direction.left;
-//       if( roomMap.checkTile( p.tilePos.x - 1, p.tilePos.y ) ) {
-//         p.tilePos.x--;
-//         p.isMoving = true;
-//       }
-//     }
-//     if ( keys.right ) {
-//       p.dir = Direction.right;
-//       if( roomMap.checkTile( p.tilePos.x + 1, p.tilePos.y ) ) {
-//         p.tilePos.x++;
-//         p.isMoving = true;
-//       }
-//     }
-//   }
-//   frameIndex = p.dir;
-// } else {
-//   switch ( p.dir ) {
-//     case Direction.up:
-//       if( p.isMoving ) /*p.y--;*/ roomMap.offsety++;
-//       frameIndex = animationCounter > 7 ? p.dir : p.step ? 5 : 3;
-//       break;
-//     case Direction.down:
-//       if( p.isMoving ) /*p.y++;*/ roomMap.offsety--;
-//       frameIndex = animationCounter > 7 ? p.dir : p.step ? 0 : 2;
-//       break;
-//     case Direction.left:
-//       if( p.isMoving ) /*p.x--;*/ roomMap.offsetx++;
-//       frameIndex = animationCounter > 7 ? p.dir : 7;
-//       break;
-//     case Direction.right:
-//       if( p.isMoving ) /*p.x++;*/ roomMap.offsetx--;
-//       frameIndex = animationCounter > 7 ? p.dir : 9;
-//       break;
-//   }
-//   animationCounter--;
-//   if( animationCounter === 0 && ( p.dir === Direction.up || p.dir === Direction.down ) ) {
-//     p.step = !p.step;
-//   }
-// }
