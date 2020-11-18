@@ -10,6 +10,7 @@ const buffer = require( 'vinyl-buffer' );
 const fancy_log = require( 'fancy-log' );
 const paths = {
   pages: ['src/*.html'],
+  assets: ['src/assets/*']
 };
 
 const watchedBrowserify = watchify(
@@ -24,6 +25,10 @@ const watchedBrowserify = watchify(
 
 gulp.task( 'copy-html', () => {
   return gulp.src( paths.pages ).pipe( gulp.dest( 'dist' ) );
+} );
+
+gulp.task( 'copy-assets', () => {
+  return gulp.src( paths.assets ).pipe( gulp.dest( 'dist/assets' ) );
 } );
 
 function bundle() {
@@ -42,6 +47,6 @@ function bundle() {
     .pipe( gulp.dest( 'dist' ) );
 }
 
-gulp.task( 'default', gulp.series( gulp.parallel( 'copy-html' ), bundle ) );
+gulp.task( 'default', gulp.series( gulp.parallel( 'copy-html', 'copy-assets' ), bundle ) );
 watchedBrowserify.on( 'update', bundle );
 watchedBrowserify.on( 'log', fancy_log );

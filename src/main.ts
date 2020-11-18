@@ -1,6 +1,6 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
-import { Rect, Direction, Player } from './lib';
+import { Rect, Direction, Player, TileMap, Point } from './lib';
 
 window.onload = main;
 
@@ -20,25 +20,13 @@ async function main(): Promise<void> {
   altCanvas.height = 128;
   const altCtx = altCanvas.getContext( '2d' );
 
-  const fontImg = new ImageAsset( 'assets/nesfont.bmp' );
-  const mapImg = new ImageAsset( 'assets/map1.png' );
-  const spriteImg = new ImageAsset( 'assets/pokemon.png' );
+  const fontImg = new ImageAsset( './assets/nesfont.bmp' );
+  const mapImg = new ImageAsset( './assets/map1.png' );
+  const spriteImg = new ImageAsset( '../assets/pokemon.png' );
   await Promise.all( [fontImg.wait(), mapImg.wait(), spriteImg.wait()] );
 
   const roomRect = new Rect( 8 * 17, 8 * 37 - 2, 8 * 20, 8 * 20 );
-  function drawMap() {
-    ctx.drawImage(
-        mapImg.img,
-        roomRect.x,
-        roomRect.y,
-        roomRect.w,
-        roomRect.h,
-        0,
-        0,
-        roomRect.w,
-        roomRect.h,
-    );
-  }
+  const roomMap = new TileMap( new Point( 16, 16 ), mapImg.img, roomRect );
 
   function drawSprite(
     ctx: CanvasRenderingContext2D,
@@ -113,7 +101,7 @@ async function main(): Promise<void> {
         if( keys.right ) { p.x --; }
     }
     ctx.clearRect( 0, 0, ctx.canvas.width, ctx.canvas.height );
-    drawMap();
+    roomMap.render( ctx );
     if( frame % 14 === 0 ) {
         counter ++;
     }
