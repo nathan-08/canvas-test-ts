@@ -1,24 +1,23 @@
+import 'core-js/stable';
+import 'regenerator-runtime/runtime';
+import { Rect, Direction, Player } from './lib';
+
 window.onload = main;
 
 async function main(): Promise<void> {
   const canvas = document.createElement( 'canvas' );
-  canvas.setAttribute( 'width', '128' );
-  canvas.setAttribute( 'height', '128' );
+  canvas.width = 128;
+  canvas.height = 128;
   canvas.setAttribute(
     'style',
-    'border: 0px solid #eee; image-rendering: pixelated; height: 512px; width: 512px;',
+    'border: 2px solid blue; image-rendering: pixelated; height: 512px; width: 512px; background: black',
   );
   document.body.appendChild( canvas );
   const ctx = canvas.getContext( '2d' );
 
   const altCanvas = document.createElement( 'canvas' );
-  altCanvas.setAttribute( 'width', '256' );
-  altCanvas.setAttribute( 'height', '128' );
-  altCanvas.setAttribute(
-    'style',
-    'border: 1px solid #eee; image-rendering: pixelated; height: 512px; width: 1024px;',
-  );
-  //document.body.appendChild( altCanvas );
+  altCanvas.width = 256;
+  altCanvas.height = 128;
   const altCtx = altCanvas.getContext( '2d' );
 
   const fontImg = new ImageAsset( 'assets/nesfont.bmp' );
@@ -113,6 +112,7 @@ async function main(): Promise<void> {
         if( keys.left  ) { p.x ++; }
         if( keys.right ) { p.x --; }
     }
+    ctx.clearRect( 0, 0, ctx.canvas.width, ctx.canvas.height );
     drawMap();
     if( frame % 14 === 0 ) {
         counter ++;
@@ -138,7 +138,8 @@ async function main(): Promise<void> {
     if( p.y > canvas.height - 16 ) p.y = canvas.height - 16;
     if( p.x < 0 ) p.x = 0;
     if( p.x > canvas.width - 16 ) p.x = canvas.width - 16; 
-    return objRects.some( ( obj ) => checkCollision( obj, p ) );
+    return false;
+    //return objRects.some( ( obj ) => checkCollision( obj, p ) );
   }
   function checkCollision( obj: Rect, p: Player ) {
     const leftA = obj.x;
@@ -159,11 +160,6 @@ async function main(): Promise<void> {
   }
 }
 
-enum Direction { up = 4, down = 1, left = 6, right = 8 };
-class Player {
-    velX = 0; velY = 0; dir: Direction = Direction.down; isMoving = false;
-    constructor( public x: number, public y: number ) {}
-}
 
 function getObjRects(): Rect[] {
     return [
@@ -203,11 +199,3 @@ class ImageAsset {
   }
 }
 
-class Rect {
-  constructor(
-    public x: number,
-    public y: number,
-    public w: number,
-    public h: number,
-  ) {}
-}
