@@ -4,4 +4,5 @@ module.exports = {
   arrowParens: 'always',
   semi: true,
   eslintIntegration: true,
+  printWidth: 80,
 };

@@ -16,6 +16,7 @@ module.exports = {
     '@typescript-eslint/explicit-function-return-type': 'off',
     'space-in-parens': ['error', 'always'],
     'prettier/prettier': 'off',
+    'max-len': ['error', { "code": 999 } ],
     // Place to specify ESLint rules. Can be used to overwrite rules specified from the extended configs
     // e.g. "@typescript-eslint/explicit-function-return-type": "off",
   },

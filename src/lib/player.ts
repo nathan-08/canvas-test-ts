@@ -1,7 +1,8 @@
-import { Direction } from '.';
+import { Direction, Point } from '.';
 
 export class Player {
-  dir: Direction = Direction.down;
-  isMoving = false;
-  constructor( public x: number, public y: number ) {}
+  public isMoving = false;
+  public step = false;
+  public dir: Direction = Direction.down;
+  constructor( public x: number, public y: number, public tilePos: Point ) {}
 }
