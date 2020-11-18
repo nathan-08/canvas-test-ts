@@ -3,6 +3,8 @@ interface IKeys {
     down: boolean;
     left: boolean;
     right: boolean;
+    a: boolean;
+    s: boolean;
 }
 export class IOController {
 
@@ -11,6 +13,8 @@ export class IOController {
     down: false,
     left: false,
     right: false,
+    a: false,
+    s: false,
   };
 
   public getKeys(): IKeys { return this.keys }
@@ -26,6 +30,9 @@ export class IOController {
       case 'ArrowDown': this.keys.down   = true; break;
       case 'ArrowLeft': this.keys.left   = true; break;
       case 'ArrowRight': this.keys.right = true; break;
+
+      case 'a': this.keys.a = true; break;
+      case 's': this.keys.s = true; break;
     }
   }
 
@@ -35,6 +42,9 @@ export class IOController {
       case 'ArrowDown': this.keys.down   = false; break;
       case 'ArrowLeft': this.keys.left   = false; break;
       case 'ArrowRight': this.keys.right = false; break;
+
+      case 'a': this.keys.a = false; break;
+      case 's': this.keys.s = false; break;
     }
   }
 }
