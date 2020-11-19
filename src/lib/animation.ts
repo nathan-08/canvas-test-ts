@@ -1,30 +1,32 @@
 export class AnimationController {
   private frames = 0;
-  private animation: Animation;
+  private action: ( frames?: number ) => void;
+  private onComplete: () => void;
 
   public get ready(): boolean {
     return this.frames === 0;
   }
 
-  public initiate( a: Animation ): void {
-    this.frames = a.frames;
-    this.animation = a;
+  public initiate( { action, frames, onComplete }: IAnimation ): void {
+    this.action = action;
+    this.frames = frames;
+    this.onComplete = onComplete;
   }
 
   public step(): void {
     if( this.frames === 0 ) return;
-    this.animation.action( this.frames );
+    this.action( this.frames );
     this.frames--;
-    if( this.frames === 0 && this.animation.onComplete ) {
-        this.animation.onComplete();
+    if( this.frames === 0 ) {
+        if( this.onComplete ) {
+            this.onComplete();
+        }
     }
   }
 }
 
-export class Animation {
-  constructor(
-      public action: ( frames: number ) => void,
-      public frames: number,
-      public onComplete?: () => void,
-  ) {}
+interface IAnimation {
+    action: ( frames?: number ) => void,
+    frames: number,
+    onComplete?: () => void,
 }

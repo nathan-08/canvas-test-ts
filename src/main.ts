@@ -8,7 +8,6 @@ import {
   Point,
   IOController,
   AnimationController,
-  Animation,
   ImageAsset,
 } from './lib';
 
@@ -39,7 +38,12 @@ async function main(): Promise<void> {
   const mapImg = new ImageAsset( './assets/map1.png' );
   const spriteImg = new ImageAsset( '../assets/pokemon.png' );
   const tileset = new ImageAsset( '../assets/tileset.png' );
-  await Promise.all( [fontImg.wait(), mapImg.wait(), spriteImg.wait(), tileset.wait()] );
+  await Promise.all( [
+    fontImg.wait(),
+    mapImg.wait(),
+    spriteImg.wait(),
+    tileset.wait(),
+  ] );
 
   function drawSprite(
     ctx: CanvasRenderingContext2D,
@@ -52,16 +56,16 @@ async function main(): Promise<void> {
   }
   // girl 16*8.5 // boy 16*2 + 2
   const walkingSprites: Rect[] = [
-    new Rect( 16 * 0 + 9, 16 * 2 + 2, 16, 16 ),
-    new Rect( 16 * 1 + 10, 16 * 2 + 2, 16, 16 ),
-    new Rect( 16 * 2 + 11, 16 * 2 + 2, 16, 16 ),
-    new Rect( 16 * 3 + 12, 16 * 2 + 2, 16, 16 ),
-    new Rect( 16 * 4 + 13, 16 * 2 + 2, 16, 16 ),
-    new Rect( 16 * 5 + 14, 16 * 2 + 2, 16, 16 ),
-    new Rect( 16 * 6 + 15, 16 * 2 + 2, 16, 16 ),
-    new Rect( 16 * 7 + 16, 16 * 2 + 2, 16, 16 ),
-    new Rect( 16 * 8 + 17, 16 * 2 + 2, 16, 16 ),
-    new Rect( 16 * 9 + 18, 16 * 2 + 2, 16, 16 ),
+    new Rect( 16 * 0 + 9, 16 * 8.5, 16, 16 ),
+    new Rect( 16 * 1 + 10, 16 * 8.5, 16, 16 ),
+    new Rect( 16 * 2 + 11, 16 * 8.5, 16, 16 ),
+    new Rect( 16 * 3 + 12, 16 * 8.5, 16, 16 ),
+    new Rect( 16 * 4 + 13, 16 * 8.5, 16, 16 ),
+    new Rect( 16 * 5 + 14, 16 * 8.5, 16, 16 ),
+    new Rect( 16 * 6 + 15, 16 * 8.5, 16, 16 ),
+    new Rect( 16 * 7 + 16, 16 * 8.5, 16, 16 ),
+    new Rect( 16 * 8 + 17, 16 * 8.5, 16, 16 ),
+    new Rect( 16 * 9 + 18, 16 * 8.5, 16, 16 ),
   ];
   let promises = [];
   for ( let i = 0; i < 10; i++ ) {
@@ -78,17 +82,27 @@ async function main(): Promise<void> {
   const walkingImgs = await Promise.all( promises );
 
   // get map tiles
-  drawSprite( altCtx, mapImg.img, new Rect( 2+16*2, 2+16*4, 16, 16 ), 0, 16*4 );
-  const idata = altCtx.getImageData( 0, 16*4, 16, 16 );
+  drawSprite(
+    altCtx,
+    mapImg.img,
+    new Rect( 2 + 16 * 2, 2 + 16 * 4, 16, 16 ),
+    0,
+    16 * 4,
+  );
+  const idata = altCtx.getImageData( 0, 16 * 4, 16, 16 );
   const grassTile = await imgdata_to_image( idata );
   promises = [];
-  const waterRect = new Rect( 16*14.5-1, 16*3-1, 16*3, 16*4 )
-  for( let i = 0; i < 4; i++ ) {
-    for( let j = 0; j < 5; j++ ) {
-      drawSprite( altCtx, tileset.img, new Rect(
-        waterRect.x + 10*i, waterRect.y + 10*j, 8, 8
-      ), 8*i, 8*j+16 );
-      const s = altCtx.getImageData( 8*i, 8*j+16, 8, 8 );
+  const waterRect = new Rect( 16 * 14.5 - 1, 16 * 3 - 1, 16 * 3, 16 * 4 );
+  for ( let i = 0; i < 4; i++ ) {
+    for ( let j = 0; j < 5; j++ ) {
+      drawSprite(
+        altCtx,
+        tileset.img,
+        new Rect( waterRect.x + 10 * i, waterRect.y + 10 * j, 8, 8 ),
+        8 * i,
+        8 * j + 16,
+      );
+      const s = altCtx.getImageData( 8 * i, 8 * j + 16, 8, 8 );
       promises.push( imgdata_to_image( s ) );
     }
   }
@@ -96,34 +110,40 @@ async function main(): Promise<void> {
 
   // get shoreline textures
   promises = [];
-  const miscSpritesRect = new Rect( 16*21+4, 16*11, 16*3, 16*3 );
-  drawSprite( altCtx, tileset.img, miscSpritesRect, 0, 16*5 );
-  for( let i = 0; i < 2; i++ ) {
-    for( let j = 0; j < 4; j++ ) {
-      const s = altCtx.getImageData( 16 + j*8, 16*7 + i*8, 8, 8 );
+  const miscSpritesRect = new Rect( 16 * 21 + 4, 16 * 11, 16 * 3, 16 * 3 );
+  drawSprite( altCtx, tileset.img, miscSpritesRect, 0, 16 * 5 );
+  for ( let i = 0; i < 2; i++ ) {
+    for ( let j = 0; j < 4; j++ ) {
+      const s = altCtx.getImageData( 16 + j * 8, 16 * 7 + i * 8, 8, 8 );
       promises.push( imgdata_to_image( s ) );
     }
   }
   const shorelineImgs = await Promise.all( promises );
-  for( let i = 0; i < shorelineImgs.length; i++ ) {
-    drawSprite( altCtx, shorelineImgs[i], new Rect( 0, 0, 8, 8 ), 16*3 + 8*i, 16*5 );
+  for ( let i = 0; i < shorelineImgs.length; i++ ) {
+    drawSprite(
+      altCtx,
+      shorelineImgs[i],
+      new Rect( 0, 0, 8, 8 ),
+      16 * 3 + 8 * i,
+      16 * 5,
+    );
   }
 
   const roomMap = new TileMap(
     new Point( 12, 8 ),
     mapImg.img,
-    new Rect( 16 * 2+2, 16 * 2 + 4, 16 * 12, 16 * 8 ),  //<- outside house
+    new Rect( 16 * 2 + 2, 16 * 2 + 2, 16 * 12, 16 * 8 ), //<- outside house
     //new Rect( 8 * 17, 8 * 37 - 2, 8 * 16, 8 * 16 ), //<- inside house
     sceneryImgs,
     shorelineImgs,
   );
 
-
-  const p = new Player( 16*4, 16*4 - 4, new Point( 0, 0 ) );
+  const p = new Player( 16 * 4, 16 * 4 - 4, new Point( 0, 0 ) );
   const ioController = new IOController();
   let frameIndex = 0;
   const animationController = new AnimationController();
-  let timestamp = 0, delta = 0;
+  let timestamp = 0,
+    delta = 0;
 
   function gameLoop() {
     timestamp = performance.now();
@@ -131,77 +151,129 @@ async function main(): Promise<void> {
       p.isMoving = false;
       const keys = ioController.getKeys();
       if ( keys.a ) {
-        animationController.initiate(
-          new Animation( ( frames: number ) => {
+        animationController.initiate( {
+          action: ( frames: number ) => {
             if ( frames > 20 ) {
-              ctx.filter = 'brightness( 60% )';
+              ctx.filter = 'brightness( 66% )';
             } else if ( frames > 10 ) {
-              ctx.filter = 'brightness( 25% )';
+              ctx.filter = 'brightness( 33% )';
             } else {
               ctx.filter = 'brightness( 0% )';
             }
-          }, 30 ),
-        );
-      } else if( keys.s ) {
-        animationController.initiate(
-          new Animation( ( frames: number ) => {
+          },
+          frames: 30,
+        } );
+      } else if ( keys.s ) {
+        animationController.initiate( {
+          action: ( frames: number ) => {
             if ( frames > 20 ) {
-              ctx.filter = 'brightness( 25% )';
+              ctx.filter = 'brightness( 33% )';
             } else if ( frames > 10 ) {
-              ctx.filter = 'brightness( 60% )';
+              ctx.filter = 'brightness( 66% )';
             } else {
               ctx.filter = 'brightness( 100% )';
             }
-          }, 30 ),
-        );
+          },
+          frames: 30,
+        } );
       } else if ( keys.up ) {
         p.dir = Direction.up;
         if ( roomMap.checkTile( p.tilePos.x, p.tilePos.y - 1 ) ) {
           p.tilePos.y--;
           p.isMoving = true;
         }
-        animationController.initiate(
-          new Animation( ( frames: number ) => {
+        animationController.initiate( {
+          action: () => {
             if ( p.isMoving ) roomMap.offsety++;
-            frameIndex = frames > 7 ? p.dir : p.step ? 5 : 3;
-          }, 16, () => p.step = !p.step ),
-        );
+            frameIndex = p.dir;
+          },
+          frames: 8,
+          onComplete: () => {
+            if ( p.isMoving || ioController.getKeys().up ) {
+              animationController.initiate( {
+                action: () => {
+                  if ( p.isMoving ) roomMap.offsety++;
+                  frameIndex = p.step ? 5 : 3;
+                },
+                frames: 8,
+                onComplete: () => ( p.step = !p.step ),
+              } );
+            }
+          },
+        } );
       } else if ( keys.down ) {
         p.dir = Direction.down;
         if ( roomMap.checkTile( p.tilePos.x, p.tilePos.y + 1 ) ) {
           p.tilePos.y++;
           p.isMoving = true;
         }
-        animationController.initiate(
-          new Animation( ( frames: number ) => {
+        animationController.initiate( {
+          action: () => {
             if ( p.isMoving ) roomMap.offsety--;
-            frameIndex = frames > 7 ? p.dir : p.step ? 0 : 2;
-          }, 16, () => p.step = !p.step ),
-        );
+            frameIndex = p.dir;
+          },
+          frames: 8,
+          onComplete: () => {
+            if ( p.isMoving || ioController.getKeys().down ) {
+              animationController.initiate( {
+                action: () => {
+                  if ( p.isMoving ) roomMap.offsety--;
+                  frameIndex = p.step ? 0 : 2;
+                },
+                frames: 8,
+                onComplete: () => ( p.step = !p.step ),
+              } );
+            }
+          },
+        } );
       } else if ( keys.left ) {
         p.dir = Direction.left;
         if ( roomMap.checkTile( p.tilePos.x - 1, p.tilePos.y ) ) {
           p.tilePos.x--;
           p.isMoving = true;
         }
-        animationController.initiate(
-          new Animation( ( frames: number ) => {
+        animationController.initiate( {
+          action: () => {
             if ( p.isMoving ) roomMap.offsetx++;
-            frameIndex = frames > 7 ? p.dir : 7;
-          }, 16 ),
-        );
+            frameIndex = p.dir;
+          },
+          frames: 8,
+          onComplete: () => {
+            if ( p.isMoving || ioController.getKeys().left ) {
+              animationController.initiate( {
+                action: () => {
+                  if ( p.isMoving ) roomMap.offsetx++;
+                  frameIndex = 7;
+                },
+                frames: 8,
+              } );
+            }
+          },
+        } );
       } else if ( keys.right ) {
         p.dir = Direction.right;
         if ( roomMap.checkTile( p.tilePos.x + 1, p.tilePos.y ) ) {
           p.tilePos.x++;
           p.isMoving = true;
         }
-        animationController.initiate(
-          new Animation( ( frames: number ) => {
+        animationController.initiate( {
+          action: () => {
             if ( p.isMoving ) roomMap.offsetx--;
-            frameIndex = frames > 7 ? p.dir : 9;
-          }, 16 ),
-        );
+            frameIndex = p.dir;
+          },
+          frames: 8,
+          onComplete: () => {
+            if ( p.isMoving || ioController.getKeys().right ) {
+              animationController.initiate( {
+                action: () => {
+                  if ( p.isMoving ) roomMap.offsetx--;
+                  frameIndex = 9;
+                },
+                frames: 8,
+              } );
+            }
+          },
+        } );
       }
       frameIndex = p.dir;
     }
@@ -213,7 +285,7 @@ async function main(): Promise<void> {
     ctx.drawImage( walkingImgs[frameIndex], p.x, p.y );
 
     delta = performance.now() - timestamp;
-    if( delta > 1 ) console.warn( `--> gameLoop took ${delta}ms` );
+    if ( delta > 1 ) console.warn( `--> gameLoop took ${delta}ms` );
     requestAnimationFrame( gameLoop );
   }
 
