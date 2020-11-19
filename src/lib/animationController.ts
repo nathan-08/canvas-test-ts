@@ -7,7 +7,8 @@ export class AnimationController {
     return this.frames === 0;
   }
 
-  public initiate( { action, frames, onComplete }: IAnimation ): void {
+  public startAnimation( { action, frames, onComplete }: IAnimation ): void {
+    if( !this.ready ) throw new Error( 'Animation in progress' );
     this.action = action;
     this.frames = frames;
     this.onComplete = onComplete;
@@ -15,12 +16,9 @@ export class AnimationController {
 
   public step(): void {
     if( this.frames === 0 ) return;
-    this.action( this.frames );
-    this.frames--;
-    if( this.frames === 0 ) {
-        if( this.onComplete ) {
-            this.onComplete();
-        }
+    this.action( this.frames-- );
+    if( this.frames === 0 && this.onComplete ) {
+        this.onComplete();
     }
   }
 }

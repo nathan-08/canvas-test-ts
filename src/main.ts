@@ -9,7 +9,10 @@ import {
   IOController,
   AnimationController,
   ImageAsset,
+  imgDataToImage,
+  drawSprite
 } from './lib';
+import { getPlayerImgs } from './lib/getPlayerImgs';
 
 window.onload = main;
 
@@ -34,6 +37,7 @@ async function main(): Promise<void> {
   const altCtx = altCanvas.getContext( '2d' );
   //document.body.appendChild( altCanvas );
 
+  // Load images //
   const fontImg = new ImageAsset( './assets/nesfont.bmp' );
   const mapImg = new ImageAsset( './assets/map1.png' );
   const spriteImg = new ImageAsset( '../assets/pokemon.png' );
@@ -45,41 +49,8 @@ async function main(): Promise<void> {
     tileset.wait(),
   ] );
 
-  function drawSprite(
-    ctx: CanvasRenderingContext2D,
-    src: HTMLImageElement,
-    rect: Rect,
-    dx: number,
-    dy: number,
-  ) {
-    ctx.drawImage( src, rect.x, rect.y, rect.w, rect.h, dx, dy, rect.w, rect.h );
-  }
-  // girl 16*8.5 // boy 16*2 + 2
-  const walkingSprites: Rect[] = [
-    new Rect( 16 * 0 + 9, 16 * 8.5, 16, 16 ),
-    new Rect( 16 * 1 + 10, 16 * 8.5, 16, 16 ),
-    new Rect( 16 * 2 + 11, 16 * 8.5, 16, 16 ),
-    new Rect( 16 * 3 + 12, 16 * 8.5, 16, 16 ),
-    new Rect( 16 * 4 + 13, 16 * 8.5, 16, 16 ),
-    new Rect( 16 * 5 + 14, 16 * 8.5, 16, 16 ),
-    new Rect( 16 * 6 + 15, 16 * 8.5, 16, 16 ),
-    new Rect( 16 * 7 + 16, 16 * 8.5, 16, 16 ),
-    new Rect( 16 * 8 + 17, 16 * 8.5, 16, 16 ),
-    new Rect( 16 * 9 + 18, 16 * 8.5, 16, 16 ),
-  ];
   let promises = [];
-  for ( let i = 0; i < 10; i++ ) {
-    drawSprite( altCtx, spriteImg.img, walkingSprites[i], 16 * i, 0 );
-    const s = altCtx.getImageData( 16 * i, 0, 16, 16 );
-    const x = s.data[0];
-    for ( let i = 0; i < s.data.length; i += 4 ) {
-      if ( s.data[i] === x ) {
-        s.data[i + 3] = 0;
-      }
-    }
-    promises.push( imgdata_to_image( s ) );
-  }
-  const walkingImgs = await Promise.all( promises );
+  const walkingImgs = await getPlayerImgs( spriteImg.img, altCtx );
 
   // get map tiles
   drawSprite(
@@ -90,7 +61,7 @@ async function main(): Promise<void> {
     16 * 4,
   );
   const idata = altCtx.getImageData( 0, 16 * 4, 16, 16 );
-  const grassTile = await imgdata_to_image( idata );
+  const grassTile = await imgDataToImage( idata );
   promises = [];
   const waterRect = new Rect( 16 * 14.5 - 1, 16 * 3 - 1, 16 * 3, 16 * 4 );
   for ( let i = 0; i < 4; i++ ) {
@@ -103,7 +74,7 @@ async function main(): Promise<void> {
         8 * j + 16,
       );
       const s = altCtx.getImageData( 8 * i, 8 * j + 16, 8, 8 );
-      promises.push( imgdata_to_image( s ) );
+      promises.push( imgDataToImage( s ) );
     }
   }
   const sceneryImgs = await Promise.all( promises );
@@ -115,7 +86,7 @@ async function main(): Promise<void> {
   for ( let i = 0; i < 2; i++ ) {
     for ( let j = 0; j < 4; j++ ) {
       const s = altCtx.getImageData( 16 + j * 8, 16 * 7 + i * 8, 8, 8 );
-      promises.push( imgdata_to_image( s ) );
+      promises.push( imgDataToImage( s ) );
     }
   }
   const shorelineImgs = await Promise.all( promises );
@@ -137,21 +108,22 @@ async function main(): Promise<void> {
     sceneryImgs,
     shorelineImgs,
   );
+  await roomMap.init();
 
   const p = new Player( 16 * 4, 16 * 4 - 4, new Point( 0, 0 ) );
   const ioController = new IOController();
+  const ac = new AnimationController();
   let frameIndex = 0;
-  const animationController = new AnimationController();
   let timestamp = 0,
     delta = 0;
 
   function gameLoop() {
     timestamp = performance.now();
-    if ( animationController.ready ) {
+    if ( ac.ready ) {
       p.isMoving = false;
       const keys = ioController.getKeys();
       if ( keys.a ) {
-        animationController.initiate( {
+        ac.startAnimation( {
           action: ( frames: number ) => {
             if ( frames > 20 ) {
               ctx.filter = 'brightness( 66% )';
@@ -164,7 +136,7 @@ async function main(): Promise<void> {
           frames: 30,
         } );
       } else if ( keys.s ) {
-        animationController.initiate( {
+        ac.startAnimation( {
           action: ( frames: number ) => {
             if ( frames > 20 ) {
               ctx.filter = 'brightness( 33% )';
@@ -182,7 +154,8 @@ async function main(): Promise<void> {
           p.tilePos.y--;
           p.isMoving = true;
         }
-        animationController.initiate( {
+        // ac.startAnimation( p.getMoveAnimation() ); // emit to map?
+        ac.startAnimation( {
           action: () => {
             if ( p.isMoving ) roomMap.offsety++;
             frameIndex = p.dir;
@@ -190,7 +163,7 @@ async function main(): Promise<void> {
           frames: 8,
           onComplete: () => {
             if ( p.isMoving || ioController.getKeys().up ) {
-              animationController.initiate( {
+              ac.startAnimation( {
                 action: () => {
                   if ( p.isMoving ) roomMap.offsety++;
                   frameIndex = p.step ? 5 : 3;
@@ -207,7 +180,7 @@ async function main(): Promise<void> {
           p.tilePos.y++;
           p.isMoving = true;
         }
-        animationController.initiate( {
+        ac.startAnimation( {
           action: () => {
             if ( p.isMoving ) roomMap.offsety--;
             frameIndex = p.dir;
@@ -215,7 +188,7 @@ async function main(): Promise<void> {
           frames: 8,
           onComplete: () => {
             if ( p.isMoving || ioController.getKeys().down ) {
-              animationController.initiate( {
+              ac.startAnimation( {
                 action: () => {
                   if ( p.isMoving ) roomMap.offsety--;
                   frameIndex = p.step ? 0 : 2;
@@ -232,7 +205,7 @@ async function main(): Promise<void> {
           p.tilePos.x--;
           p.isMoving = true;
         }
-        animationController.initiate( {
+        ac.startAnimation( {
           action: () => {
             if ( p.isMoving ) roomMap.offsetx++;
             frameIndex = p.dir;
@@ -240,7 +213,7 @@ async function main(): Promise<void> {
           frames: 8,
           onComplete: () => {
             if ( p.isMoving || ioController.getKeys().left ) {
-              animationController.initiate( {
+              ac.startAnimation( {
                 action: () => {
                   if ( p.isMoving ) roomMap.offsetx++;
                   frameIndex = 7;
@@ -256,7 +229,7 @@ async function main(): Promise<void> {
           p.tilePos.x++;
           p.isMoving = true;
         }
-        animationController.initiate( {
+        ac.startAnimation( {
           action: () => {
             if ( p.isMoving ) roomMap.offsetx--;
             frameIndex = p.dir;
@@ -264,7 +237,7 @@ async function main(): Promise<void> {
           frames: 8,
           onComplete: () => {
             if ( p.isMoving || ioController.getKeys().right ) {
-              animationController.initiate( {
+              ac.startAnimation( {
                 action: () => {
                   if ( p.isMoving ) roomMap.offsetx--;
                   frameIndex = 9;
@@ -277,12 +250,12 @@ async function main(): Promise<void> {
       }
       frameIndex = p.dir;
     }
-    animationController.step();
+    ac.step();
 
     ctx.clearRect( 0, 0, ctx.canvas.width, ctx.canvas.height );
     roomMap.render( ctx );
 
-    ctx.drawImage( walkingImgs[frameIndex], p.x, p.y );
+    ctx.drawImage( walkingImgs[frameIndex], p.x, p.y ); // p.render();
 
     delta = performance.now() - timestamp;
     if ( delta > 1 ) console.warn( `--> gameLoop took ${delta}ms` );
@@ -290,18 +263,4 @@ async function main(): Promise<void> {
   }
 
   gameLoop();
-}
-
-async function imgdata_to_image(
-  imageData: ImageData,
-): Promise<HTMLImageElement> {
-  const canvas = document.createElement( 'canvas' );
-  const ctx = canvas.getContext( '2d' );
-  canvas.width = imageData.width;
-  canvas.height = imageData.height;
-  ctx.putImageData( imageData, 0, 0 );
-  const img = new Image();
-  img.src = canvas.toDataURL();
-  await new Promise( ( resolve ) => img.addEventListener( 'load', resolve ) );
-  return img;
 }
