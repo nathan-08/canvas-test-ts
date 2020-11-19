@@ -1,0 +1,1 @@
+export { IAnimation } from './IAnimation';

@@ -1,3 +1,5 @@
+import { IAnimation } from '../types';
+
 export class AnimationController {
   private frames = 0;
   private action: ( frames?: number ) => void;
@@ -21,10 +23,4 @@ export class AnimationController {
         this.onComplete();
     }
   }
-}
-
-interface IAnimation {
-    action: ( frames?: number ) => void,
-    frames: number,
-    onComplete?: () => void,
 }

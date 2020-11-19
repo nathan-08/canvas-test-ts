@@ -4,15 +4,17 @@ import {
   Rect,
   Direction,
   Player,
-  TileMap,
+  RoomMap, OutdoorMap, MapController,
   Point,
   IOController,
   AnimationController,
   ImageAsset,
   imgDataToImage,
-  drawSprite
+  drawSprite,
+  getPlayerImgs,
 } from './lib';
-import { getPlayerImgs } from './lib/getPlayerImgs';
+import { getFadeInAnimation, getFadeOutAnimation } from './actions';
+import { IAnimation } from './types';
 
 window.onload = main;
 
@@ -100,15 +102,35 @@ async function main(): Promise<void> {
     );
   }
 
-  const roomMap = new TileMap(
-    new Point( 12, 8 ),
+  const outdoorMap = new OutdoorMap(
     mapImg.img,
-    new Rect( 16 * 2 + 2, 16 * 2 + 2, 16 * 12, 16 * 8 ), //<- outside house
-    //new Rect( 8 * 17, 8 * 37 - 2, 8 * 16, 8 * 16 ), //<- inside house
     sceneryImgs,
     shorelineImgs,
+    {
+      ...getFadeOutAnimation( ctx ),
+      onComplete: () => {
+        mc.setMapIndex( 1 );
+        p.tilePos.x = 3; p.tilePos.y = 7;
+        mc.offsetx = 16;
+        mc.offsety = -16*3;
+        ac.startAnimation( getFadeInAnimation( ctx ) );
+      }
+    }
   );
+  await outdoorMap.init();
+  const roomMap = new RoomMap( mapImg.img, {
+    ...getFadeOutAnimation( ctx ),
+    onComplete: () => {
+      mc.setMapIndex( 0 );
+      p.tilePos.x = 5; p.tilePos.y = 3;
+      mc.offsetx = -16;
+      mc.offsety = 16;
+      ac.startAnimation( getFadeInAnimation( ctx ) );
+    }
+  } );
   await roomMap.init();
+  const mc = new MapController( [ outdoorMap, roomMap ] );
+  mc.setMapIndex( 0 );
 
   const p = new Player( 16 * 4, 16 * 4 - 4, new Point( 0, 0 ) );
   const ioController = new IOController();
@@ -123,41 +145,32 @@ async function main(): Promise<void> {
       p.isMoving = false;
       const keys = ioController.getKeys();
       if ( keys.a ) {
-        ac.startAnimation( {
-          action: ( frames: number ) => {
-            if ( frames > 20 ) {
-              ctx.filter = 'brightness( 66% )';
-            } else if ( frames > 10 ) {
-              ctx.filter = 'brightness( 33% )';
+        ac.startAnimation(
+          { ...getFadeOutAnimation( ctx ), onComplete: () => {
+            mc.setMapIndex( mc.mapIndex === 0 ? 1 : 0 );
+            if( mc.mapIndex === 1 ) { // going into room
+              p.tilePos.x = 3; p.tilePos.y = 7;
+              mc.offsetx = 16;
+              mc.offsety = -16*3;
             } else {
-              ctx.filter = 'brightness( 0% )';
+              p.tilePos.x = 5; p.tilePos.y = 3;
+              mc.offsetx =  -16;
+              mc.offsety =  16;
             }
-          },
-          frames: 30,
-        } );
+          }}
+        );
       } else if ( keys.s ) {
-        ac.startAnimation( {
-          action: ( frames: number ) => {
-            if ( frames > 20 ) {
-              ctx.filter = 'brightness( 33% )';
-            } else if ( frames > 10 ) {
-              ctx.filter = 'brightness( 66% )';
-            } else {
-              ctx.filter = 'brightness( 100% )';
-            }
-          },
-          frames: 30,
-        } );
+        ac.startAnimation( getFadeInAnimation( ctx ) );
       } else if ( keys.up ) {
         p.dir = Direction.up;
-        if ( roomMap.checkTile( p.tilePos.x, p.tilePos.y - 1 ) ) {
+        const { walkable, tileAction } = mc.checkTile2( p.tilePos.x, p.tilePos.y - 1 );
+        if ( walkable ) {
           p.tilePos.y--;
           p.isMoving = true;
         }
-        // ac.startAnimation( p.getMoveAnimation() ); // emit to map?
         ac.startAnimation( {
           action: () => {
-            if ( p.isMoving ) roomMap.offsety++;
+            if ( p.isMoving ) mc.offsety++;
             frameIndex = p.dir;
           },
           frames: 8,
@@ -165,24 +178,28 @@ async function main(): Promise<void> {
             if ( p.isMoving || ioController.getKeys().up ) {
               ac.startAnimation( {
                 action: () => {
-                  if ( p.isMoving ) roomMap.offsety++;
+                  if ( p.isMoving ) mc.offsety++;
                   frameIndex = p.step ? 5 : 3;
                 },
                 frames: 8,
-                onComplete: () => ( p.step = !p.step ),
+                onComplete: () => {
+                  p.step = !p.step;
+                  if ( tileAction ) ac.startAnimation( tileAction );
+                },
               } );
             }
           },
         } );
       } else if ( keys.down ) {
         p.dir = Direction.down;
-        if ( roomMap.checkTile( p.tilePos.x, p.tilePos.y + 1 ) ) {
+        const { walkable, tileAction } = mc.checkTile2( p.tilePos.x, p.tilePos.y + 1 );
+        if ( walkable ) {
           p.tilePos.y++;
           p.isMoving = true;
         }
         ac.startAnimation( {
           action: () => {
-            if ( p.isMoving ) roomMap.offsety--;
+            if ( p.isMoving ) mc.offsety--;
             frameIndex = p.dir;
           },
           frames: 8,
@@ -190,24 +207,27 @@ async function main(): Promise<void> {
             if ( p.isMoving || ioController.getKeys().down ) {
               ac.startAnimation( {
                 action: () => {
-                  if ( p.isMoving ) roomMap.offsety--;
+                  if ( p.isMoving ) mc.offsety--;
                   frameIndex = p.step ? 0 : 2;
                 },
                 frames: 8,
-                onComplete: () => ( p.step = !p.step ),
+                onComplete: () => {
+                  p.step = !p.step;
+                  if ( tileAction ) ac.startAnimation( tileAction );
+                }
               } );
             }
           },
         } );
       } else if ( keys.left ) {
         p.dir = Direction.left;
-        if ( roomMap.checkTile( p.tilePos.x - 1, p.tilePos.y ) ) {
+        if ( mc.checkTile( p.tilePos.x - 1, p.tilePos.y ) ) {
           p.tilePos.x--;
           p.isMoving = true;
         }
         ac.startAnimation( {
           action: () => {
-            if ( p.isMoving ) roomMap.offsetx++;
+            if ( p.isMoving ) mc.offsetx++;
             frameIndex = p.dir;
           },
           frames: 8,
@@ -215,7 +235,7 @@ async function main(): Promise<void> {
             if ( p.isMoving || ioController.getKeys().left ) {
               ac.startAnimation( {
                 action: () => {
-                  if ( p.isMoving ) roomMap.offsetx++;
+                  if ( p.isMoving ) mc.offsetx++;
                   frameIndex = 7;
                 },
                 frames: 8,
@@ -225,13 +245,13 @@ async function main(): Promise<void> {
         } );
       } else if ( keys.right ) {
         p.dir = Direction.right;
-        if ( roomMap.checkTile( p.tilePos.x + 1, p.tilePos.y ) ) {
+        if ( mc.checkTile( p.tilePos.x + 1, p.tilePos.y ) ) {
           p.tilePos.x++;
           p.isMoving = true;
         }
         ac.startAnimation( {
           action: () => {
-            if ( p.isMoving ) roomMap.offsetx--;
+            if ( p.isMoving ) mc.offsetx--;
             frameIndex = p.dir;
           },
           frames: 8,
@@ -239,7 +259,7 @@ async function main(): Promise<void> {
             if ( p.isMoving || ioController.getKeys().right ) {
               ac.startAnimation( {
                 action: () => {
-                  if ( p.isMoving ) roomMap.offsetx--;
+                  if ( p.isMoving ) mc.offsetx--;
                   frameIndex = 9;
                 },
                 frames: 8,
@@ -253,7 +273,7 @@ async function main(): Promise<void> {
     ac.step();
 
     ctx.clearRect( 0, 0, ctx.canvas.width, ctx.canvas.height );
-    roomMap.render( ctx );
+    mc.render( ctx );
 
     ctx.drawImage( walkingImgs[frameIndex], p.x, p.y ); // p.render();
 
