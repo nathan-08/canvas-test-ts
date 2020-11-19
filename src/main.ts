@@ -30,21 +30,16 @@ async function main(): Promise<void> {
   altCanvas.height = 128;
   altCanvas.setAttribute(
     'style',
-    'image-rendering: pixelated; height: 256px; width: 512px; background: black',
+    'image-rendering: pixelated; height: 512px; width: 1024px; background: black',
   );
   const altCtx = altCanvas.getContext( '2d' );
-  document.body.appendChild( altCanvas );
+  //document.body.appendChild( altCanvas );
 
   const fontImg = new ImageAsset( './assets/nesfont.bmp' );
   const mapImg = new ImageAsset( './assets/map1.png' );
   const spriteImg = new ImageAsset( '../assets/pokemon.png' );
-  await Promise.all( [fontImg.wait(), mapImg.wait(), spriteImg.wait()] );
-
-  const roomMap = new TileMap(
-    new Point( 8, 8 ),
-    mapImg.img,
-    new Rect( 8 * 17, 8 * 37 - 2, 8 * 16, 8 * 16 ),
-  );
+  const tileset = new ImageAsset( '../assets/tileset.png' );
+  await Promise.all( [fontImg.wait(), mapImg.wait(), spriteImg.wait(), tileset.wait()] );
 
   function drawSprite(
     ctx: CanvasRenderingContext2D,
@@ -68,7 +63,7 @@ async function main(): Promise<void> {
     new Rect( 16 * 8 + 17, 16 * 2 + 2, 16, 16 ),
     new Rect( 16 * 9 + 18, 16 * 2 + 2, 16, 16 ),
   ];
-  const promises = [];
+  let promises = [];
   for ( let i = 0; i < 10; i++ ) {
     drawSprite( altCtx, spriteImg.img, walkingSprites[i], 16 * i, 0 );
     const s = altCtx.getImageData( 16 * i, 0, 16, 16 );
@@ -82,7 +77,49 @@ async function main(): Promise<void> {
   }
   const walkingImgs = await Promise.all( promises );
 
-  const p = new Player( 16 * 4, 16 * 4 - 4, new Point( 3, 7 ) );
+  // get map tiles
+  drawSprite( altCtx, mapImg.img, new Rect( 2+16*2, 2+16*4, 16, 16 ), 0, 16*4 );
+  const idata = altCtx.getImageData( 0, 16*4, 16, 16 );
+  const grassTile = await imgdata_to_image( idata );
+  promises = [];
+  const waterRect = new Rect( 16*14.5-1, 16*3-1, 16*3, 16*4 )
+  for( let i = 0; i < 4; i++ ) {
+    for( let j = 0; j < 5; j++ ) {
+      drawSprite( altCtx, tileset.img, new Rect(
+        waterRect.x + 10*i, waterRect.y + 10*j, 8, 8
+      ), 8*i, 8*j+16 );
+      const s = altCtx.getImageData( 8*i, 8*j+16, 8, 8 );
+      promises.push( imgdata_to_image( s ) );
+    }
+  }
+  const sceneryImgs = await Promise.all( promises );
+
+  // get shoreline textures
+  promises = [];
+  const miscSpritesRect = new Rect( 16*21+4, 16*11, 16*3, 16*3 );
+  drawSprite( altCtx, tileset.img, miscSpritesRect, 0, 16*5 );
+  for( let i = 0; i < 2; i++ ) {
+    for( let j = 0; j < 4; j++ ) {
+      const s = altCtx.getImageData( 16 + j*8, 16*7 + i*8, 8, 8 );
+      promises.push( imgdata_to_image( s ) );
+    }
+  }
+  const shorelineImgs = await Promise.all( promises );
+  for( let i = 0; i < shorelineImgs.length; i++ ) {
+    drawSprite( altCtx, shorelineImgs[i], new Rect( 0, 0, 8, 8 ), 16*3 + 8*i, 16*5 );
+  }
+
+  const roomMap = new TileMap(
+    new Point( 12, 8 ),
+    mapImg.img,
+    new Rect( 16 * 2+2, 16 * 2 + 4, 16 * 12, 16 * 8 ),  //<- outside house
+    //new Rect( 8 * 17, 8 * 37 - 2, 8 * 16, 8 * 16 ), //<- inside house
+    sceneryImgs,
+    shorelineImgs,
+  );
+
+
+  const p = new Player( 16*4, 16*4 - 4, new Point( 0, 0 ) );
   const ioController = new IOController();
   let frameIndex = 0;
   const animationController = new AnimationController();
