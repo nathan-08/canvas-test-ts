@@ -21,7 +21,7 @@ async function main(): Promise<void> {
   canvas.height = 128;
   canvas.setAttribute(
     'style',
-    'border: 0px solid blue; image-rendering: pixelated; height: 512px; width: 512px; background: black',
+    'border: 0px solid blue; image-rendering: pixelated; height: 512px; width: 512px; background: rgb(255,255,255)',
   );
   document.body.appendChild( canvas );
   const ctx = canvas.getContext( '2d' );
@@ -44,30 +44,37 @@ async function main(): Promise<void> {
     tileset.wait(),
   ] );
   
-  const tileMap = new TileMap2( tileset.img );
-  function gameLoop2() {
-    ctx.clearRect( 0, 0, ctx.canvas.width, ctx.canvas.height );
-    tileMap.render( ctx );
-    requestAnimationFrame( gameLoop2 );
-  }
-  gameLoop2();
-
   // set up gameloop stuff
-  const p = new Player( 16 * 4, 16 * 4 - 4, new Point( 0, 0 ) );
+  const p = new Player( 16 * 4, 16 * 4 - 4, new Point( 5, 6 ), spriteImg.img );
   //const walkingImgs = await getPlayerImgs( spriteImg.img, altCtx );
   const ioController = new IOController();
   const ac = new AnimationController();
   let frameIndex = 0;
   let timestamp = 0,
     delta = 0;
-
-  function gameLoop() {
-    timestamp = performance.now();
+  const tileMap = new TileMap2( tileset.img );
+  // GAME LOOP //
+  function gameLoop2() {
     if ( ac.ready ) {
+      handleInput();
+    }
+    ac.step();
+    ctx.fillStyle = 'rgb( 248, 248, 248 )';
+    ctx.fillRect( 0, 0, ctx.canvas.width, ctx.canvas.height );
+    //ctx.clearRect( 0, 0, ctx.canvas.width, ctx.canvas.height );
+    tileMap.render( ctx );
+    p.render( ctx );
+    tileMap.renderGrass( ctx, p );
+    requestAnimationFrame( gameLoop2 );
+  }
+  gameLoop2();
+
+
+  function handleInput() {
       p.isMoving = false;
       const keys = ioController.getKeys();
       if ( keys.a ) {
-        //
+        console.log( 'a-okay' );
       } else if ( keys.s ) {
         //
       } else if ( keys.up ) {
@@ -178,6 +185,11 @@ async function main(): Promise<void> {
         // } );
       }
       frameIndex = p.dir;
+  }
+  function gameLoop() {
+    timestamp = performance.now();
+    if ( ac.ready ) {
+      handleInput();
     }
     ac.step();
 

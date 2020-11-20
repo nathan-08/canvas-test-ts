@@ -1,11 +1,12 @@
 // nature animations start: (231, 47)
-import { Point } from '.';
+import { Point, Player } from '.';
 export class TileMap2 {
+  private numAnimations = 8;
   private renderCount = 0;
   private animationStage = 0;
   private x = 0;
   private y = 0;
-  private w = 8;
+  private w = 16;
   private h = 16;
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
@@ -16,22 +17,22 @@ export class TileMap2 {
     [0, 1, 0, 1],
   ];
   private tileAtlas2 = [
-    [4, 5, 4, 5, 4, 5, 4, 5],
-    [5, 4, 5, 4, 5, 4, 5, 4],
-    [4, 5, 1, 0, 1, 0, 4, 5],
-    [5, 4, 0, 1, 0, 1, 5, 4],
-    [4, 5, 1, 0, 1, 0, 4, 5],
-    [5, 4, 0, 1, 0, 1, 5, 4],
-    [4, 5, 4, 5, 4, 5, 4, 5],
-    [5, 4, 5, 4, 5, 4, 5, 4],
-    [4, 5, 4, 5, 4, 5, 4, 5],
-    [5, 4, 5, 4, 5, 4, 5, 4],
-    [4, 5, 1, 0, 1, 0, 4, 5],
-    [5, 4, 0, 1, 0, 1, 5, 4],
-    [4, 5, 1, 0, 1, 0, 4, 5],
-    [5, 4, 0, 1, 0, 1, 5, 4],
-    [4, 5, 4, 5, 4, 5, 4, 5],
-    [5, 4, 5, 4, 5, 4, 5, 4],
+    [2, 2, 2, 2, 2, 2, 2, 2,  8,11,14,14,14,14,24,26],
+    [6, 7, 7, 7, 7, 7, 7, 3,  9,12,15,15,15,15,25,27],
+    [6, 7, 7, 7, 7, 7, 7, 3, 10,13,16,16,17,18,28,29],
+    [6, 7, 7, 7, 7, 7, 7, 3, 21,23,23,23,19,20,23,22],
+    [6, 7, 7, 7, 7, 7, 7, 3,  5, 5, 5, 5, 5, 5,30,31],
+    [6, 7, 7, 7, 7, 7, 7, 3,  5, 4, 5, 5, 5, 4,32,33],
+    [4, 4, 4, 4, 4, 4, 4, 4,  5, 5, 5, 5, 5, 5,30,31],
+    [4, 4, 4, 4, 4, 4, 4, 4,  5, 5, 5, 4, 5, 5,32,33],
+    [4, 4, 1, 0, 1, 0, 4, 4,  5, 5, 5, 5, 5, 5,30,31],
+    [4, 4, 0, 1, 0, 1, 4, 4,  5, 4, 5, 5, 5, 4,32,33],
+    [4, 4, 1, 0, 1, 0, 4, 4,  5, 5, 5, 5, 5, 5,30,31],
+    [4, 4, 0, 1, 0, 1, 4, 4,  5, 5, 5, 4, 5, 5,32,33],
+    [4, 4, 1, 0, 1, 0, 4, 4, 34,34,34,34, 5, 5,30,31],
+    [4, 4, 0, 1, 0, 1, 4, 4, 34,34,34,34, 5, 4,32,33],
+    [4, 4, 4, 4, 4, 4, 4, 4, 34,34,34,34, 5, 5,30,31],
+    [4, 4, 4, 4, 4, 4, 4, 4, 34,34,34,34, 5, 5,32,33],
   ];
   private tileHash: { [index: number]: Point | { [index:number]: Point } } = {
     0: new Point( 8*12, 8*2 ), // rough grass
@@ -40,9 +41,56 @@ export class TileMap2 {
         1: new Point( 16*9.5, 8  ),
         2: new Point( 16*9.5, 8*2 ),
         3: new Point( 16*9.5, 0  ),
+
+        4: new Point( 16*9.5, 8  ), // flower animations
+        5: new Point( 16*9.5, 8  ),
+        6: new Point( 16*9.5, 8*2 ),
+        7: new Point( 16*9.5, 0  ),
     },
+    2: new Point( 8*3, 8*3 ), // top shoreline
+    3: new Point( 8*4, 8*5 ), // right shoreline
     4: new Point( 8*9, 8*3 ), // grass
-    5: new Point( 0, 0 ) //blank
+    5: new Point( 0, 0 ), //blank
+    6: new Point( 8*2, 8*3 ), // left shoreline
+    7: { // water animation
+
+        0: new Point( 16*9, 0 ),
+        1: new Point( 16*9, 8 ),
+        2: new Point( 16*9, 8*2 ),
+        3: new Point( 16*9, 8*3 ),
+        
+        4: new Point( 16*9, 8*4 ),
+        5: new Point( 16*9, 8*3 ),
+        6: new Point( 16*9, 8*2 ),
+        7: new Point( 16*9, 8*1 ),
+    },
+    8: new Point( 8*5, 8*0 ), // roof 1
+    9: new Point( 8*5, 8*1 ), // roof 2
+    10: new Point( 8*5, 8*2 ), // roof 3
+    11: new Point( 8*6, 8*0 ), // roof 
+    12: new Point( 8*6, 8*1 ), // roof  
+    13: new Point( 8*6, 8*2 ), // roof  
+    14: new Point( 8*7, 8*0 ), // roof  
+    15: new Point( 8*7, 8*1 ), // roof  
+    16: new Point( 8*10, 8*0 ), // window  
+    17: new Point( 8*11, 8*0 ), // door a
+    18: new Point( 8*12, 8*0 ), // door b
+    19: new Point( 8*11, 8*1 ), // door c
+    20: new Point( 8*12, 8*1 ), // door d
+    21: new Point( 8*14, 8*4 ), //  house bottom left
+    22: new Point( 8*15, 8*4 ), //  house bottom right
+    23: new Point( 8*10, 8*1 ), // house bottom mid
+    24: new Point( 8*8, 8*0 ), // roof right
+    25: new Point( 8*8, 8*1 ), // roof right
+    26: new Point( 8*9, 8*0 ), // roof right
+    27: new Point( 8*9, 8*1 ), // roof right
+    28: new Point( 8*8, 8*2 ), // roof right
+    29: new Point( 8*9, 8*2 ), // roof right
+    30: new Point( 8*0, 8*4 ), // tree
+    31: new Point( 8*1, 8*4 ), // tree
+    32: new Point( 8*0, 8*5 ), // tree
+    33: new Point( 8*1, 8*5 ), // tree
+    34: new Point( 8*2, 8*5 ), // tall grass!
   };
   constructor( private src: HTMLImageElement ) {
     this.canvas = document.createElement( 'canvas' );
@@ -50,9 +98,9 @@ export class TileMap2 {
     this.canvas.height = 128;
     this.canvas.setAttribute(
       'style',
-      'image-rendering: pixelated; height: 512px; width: 1024px; background: black;',
+      'image-rendering: pixelated; height: 512px; width: 1024px; background: rgb(248,248,248);',
     );
-    document.body.appendChild( this.canvas );
+    //document.body.appendChild( this.canvas );
     this.ctx = this.canvas.getContext( '2d' );
     this.ctx.drawImage(
       this.src,
@@ -80,22 +128,20 @@ export class TileMap2 {
             );
         }
     }
-    // this.ctx.drawImage(
-    //     this.src,
-    //     231,
-    //     47,
-    //     16*3,
-    //     16*4,
-    //     16*8,
-    //     0,
-    //     16*3,
-    //     16*4
-    // );
+    // make data on cavnas transparent
+    const imgData = this.ctx.getImageData( 0, 0, this.canvas.width, this.canvas.height );
+    const keyPixel = imgData.data[0];
+    for ( let i = 0; i < imgData.data.length; i += 4 ) {
+        if ( imgData.data[i] === keyPixel ) {
+            imgData.data[i + 3] = 0; // set alpha to 0
+        }
+    }
+    this.ctx.putImageData( imgData, 0, 0 );
   }
   public render( ctx: CanvasRenderingContext2D ): void {
     if ( this.renderCount % 20 === 0 ) {
         this.animationStage++;
-        if ( this.animationStage === 4 ) { // TODO get num animations (hardcoded)
+        if ( this.animationStage === this.numAnimations ) { // TODO get num animations (hardcoded)
             this.animationStage = 0;
         }
     }
@@ -124,5 +170,34 @@ export class TileMap2 {
       }
     }
     this.renderCount ++;
+  }
+  public renderGrass( ctx: CanvasRenderingContext2D, p: Player ): void {
+    const px = p.tilePos.x * 2 + 1;
+    const py = p.tilePos.y * 2 + 1;
+    const tileAtlasVal = this.tileAtlas2[py][px];
+    if ( tileAtlasVal === 34 ) {
+        ctx.drawImage(
+            this.canvas,
+            ( <Point>this.tileHash[34] ).x,
+            ( <Point>this.tileHash[34] ).y,
+            8,
+            8,
+            px * 8,
+            py * 8,
+            8,
+            8,
+        );
+        ctx.drawImage(
+            this.canvas,
+            ( <Point>this.tileHash[34] ).x,
+            ( <Point>this.tileHash[34] ).y,
+            8,
+            8,
+            ( px-1 ) * 8,
+            py * 8,
+            8,
+            8,
+        );
+    }
   }
 }
