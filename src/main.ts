@@ -21,7 +21,7 @@ async function main(): Promise<void> {
   canvas.height = 128;
   canvas.setAttribute(
     'style',
-    'border: 1px solid blue; image-rendering: pixelated; height: 512px; width: 512px; background: black',
+    'border: 0px solid blue; image-rendering: pixelated; height: 512px; width: 512px; background: black',
   );
   document.body.appendChild( canvas );
   const ctx = canvas.getContext( '2d' );
@@ -45,7 +45,12 @@ async function main(): Promise<void> {
   ] );
   
   const tileMap = new TileMap2( tileset.img );
-  tileMap.render( ctx );
+  function gameLoop2() {
+    ctx.clearRect( 0, 0, ctx.canvas.width, ctx.canvas.height );
+    tileMap.render( ctx );
+    requestAnimationFrame( gameLoop2 );
+  }
+  gameLoop2();
 
   // set up gameloop stuff
   const p = new Player( 16 * 4, 16 * 4 - 4, new Point( 0, 0 ) );
