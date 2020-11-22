@@ -188,33 +188,4 @@ export class TileMap2 implements ITileMap {
     const tileVal = this.tileAtlas2[py][px];
     return tileVal === 34;
   }
-  public renderGrass( ctx: CanvasRenderingContext2D, p: Player ): void {
-    const px = p.tilePos.x * 2 + 1;
-    const py = p.tilePos.y * 2 + 1;
-    const tileAtlasVal = this.tileAtlas2[py][px];
-    if ( tileAtlasVal === 34 ) {
-        ctx.drawImage(
-            this.canvas,
-            ( <Point>this.tileHash[34] ).x,
-            ( <Point>this.tileHash[34] ).y,
-            8,
-            8,
-            this.x + px * 8,
-            this.y + py * 8,
-            8,
-            8,
-        );
-        ctx.drawImage(
-            this.canvas,
-            ( <Point>this.tileHash[34] ).x,
-            ( <Point>this.tileHash[34] ).y,
-            8,
-            8,
-            this.x + ( px-1 ) * 8,
-            this.y + py * 8,
-            8,
-            8,
-        );
-    }
-  }
 }
