@@ -1,17 +1,13 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import {
-  Rect,
-  Direction,
   Player,
   TileMap2,
   Point,
   IOController,
   AnimationController,
   ImageAsset,
-  getPlayerImgs,
 } from './lib';
-import { getFadeInAnimation, getFadeOutAnimation } from './actions';
 
 window.onload = main;
 
@@ -21,187 +17,36 @@ async function main(): Promise<void> {
   canvas.height = 128;
   canvas.setAttribute(
     'style',
-    'border: 0px solid blue; image-rendering: pixelated; height: 512px; width: 512px; background: rgb(255,255,255)',
+    'border: 0px solid blue; image-rendering: pixelated; height: 512px; width: 512px; background: rgb(0, 0, 0)',
   );
   document.body.appendChild( canvas );
   const ctx = canvas.getContext( '2d' );
 
-  // const altCanvas = document.createElement( 'canvas' );
-  // altCanvas.width = 256;
-  // altCanvas.height = 128;
-  // altCanvas.setAttribute(
-  //   'style',
-  //   'image-rendering: pixelated; height: 512px; width: 1024px; background: black',
-  // );
-  // const altCtx = altCanvas.getContext( '2d' );
-  // document.body.appendChild( altCanvas );
-
   // Load images //
   const spriteImg = new ImageAsset( '../assets/pokemon.png' );
   const tileset = new ImageAsset( '../assets/tileset.png' );
-  await Promise.all( [
-    spriteImg.wait(),
-    tileset.wait(),
-  ] );
-  
+  await Promise.all( [spriteImg.wait(), tileset.wait()] );
+
   // set up gameloop stuff
-  const p = new Player( 16 * 4, 16 * 4 - 4, new Point( 5, 6 ), spriteImg.img );
+  const p = new Player( new Point( 4, 4 ), spriteImg.img );
   //const walkingImgs = await getPlayerImgs( spriteImg.img, altCtx );
-  const ioController = new IOController();
+  const io = new IOController();
   const ac = new AnimationController();
-  let frameIndex = 0;
-  let timestamp = 0,
-    delta = 0;
   const tileMap = new TileMap2( tileset.img );
   // GAME LOOP //
   function gameLoop2() {
     if ( ac.ready ) {
-      handleInput();
+      io.handleInput( p, tileMap, ac );
     }
     ac.step();
-    ctx.fillStyle = 'rgb( 248, 248, 248 )';
-    ctx.fillRect( 0, 0, ctx.canvas.width, ctx.canvas.height );
-    //ctx.clearRect( 0, 0, ctx.canvas.width, ctx.canvas.height );
+    ctx.clearRect( 0, 0, ctx.canvas.width, ctx.canvas.height );
     tileMap.render( ctx );
-    p.render( ctx );
-    tileMap.renderGrass( ctx, p );
+    p.render( ctx, tileMap.legsUnderGrass( p ) );
+    ctx.globalCompositeOperation = 'destination-over';
+    ctx.fillStyle = 'rgb( 248, 248, 248 )';
+    ctx.fillRect( tileMap.x, tileMap.y, tileMap.w16 * 16, tileMap.h16 * 16 );
+    ctx.globalCompositeOperation = 'source-over';
     requestAnimationFrame( gameLoop2 );
   }
   gameLoop2();
-
-
-  function handleInput() {
-      p.isMoving = false;
-      const keys = ioController.getKeys();
-      if ( keys.a ) {
-        console.log( 'a-okay' );
-      } else if ( keys.s ) {
-        //
-      } else if ( keys.up ) {
-        // p.dir = Direction.up;
-        // const { walkable, tileAction } = mc.checkTile2( p.tilePos.x, p.tilePos.y - 1 );
-        // if ( walkable ) {
-        //   p.tilePos.y--;
-        //   p.isMoving = true;
-        // }
-        // ac.startAnimation( {
-        //   action: () => {
-        //     if ( p.isMoving ) mc.offsety++;
-        //     frameIndex = p.dir;
-        //   },
-        //   frames: 8,
-        //   onComplete: () => {
-        //     if ( p.isMoving || ioController.getKeys().up ) {
-        //       ac.startAnimation( {
-        //         action: () => {
-        //           if ( p.isMoving ) mc.offsety++;
-        //           frameIndex = p.step ? 5 : 3;
-        //         },
-        //         frames: 8,
-        //         onComplete: () => {
-        //           p.step = !p.step;
-        //           if ( tileAction ) ac.startAnimation( tileAction );
-        //         },
-        //       } );
-        //     }
-        //   },
-        // } );
-      } else if ( keys.down ) {
-        // p.dir = Direction.down;
-        // const { walkable, tileAction } = mc.checkTile2( p.tilePos.x, p.tilePos.y + 1 );
-        // if ( walkable ) {
-        //   p.tilePos.y++;
-        //   p.isMoving = true;
-        // }
-        // ac.startAnimation( {
-        //   action: () => {
-        //     if ( p.isMoving ) mc.offsety--;
-        //     frameIndex = p.dir;
-        //   },
-        //   frames: 8,
-        //   onComplete: () => {
-        //     if ( p.isMoving || ioController.getKeys().down ) {
-        //       ac.startAnimation( {
-        //         action: () => {
-        //           if ( p.isMoving ) mc.offsety--;
-        //           frameIndex = p.step ? 0 : 2;
-        //         },
-        //         frames: 8,
-        //         onComplete: () => {
-        //           p.step = !p.step;
-        //           if ( tileAction ) ac.startAnimation( tileAction );
-        //         }
-        //       } );
-        //     }
-        //   },
-        // } );
-      } else if ( keys.left ) {
-        // p.dir = Direction.left;
-        // if ( mc.checkTile( p.tilePos.x - 1, p.tilePos.y ) ) {
-        //   p.tilePos.x--;
-        //   p.isMoving = true;
-        // }
-        // ac.startAnimation( {
-        //   action: () => {
-        //     if ( p.isMoving ) mc.offsetx++;
-        //     frameIndex = p.dir;
-        //   },
-        //   frames: 8,
-        //   onComplete: () => {
-        //     if ( p.isMoving || ioController.getKeys().left ) {
-        //       ac.startAnimation( {
-        //         action: () => {
-        //           if ( p.isMoving ) mc.offsetx++;
-        //           frameIndex = 7;
-        //         },
-        //         frames: 8,
-        //       } );
-        //     }
-        //   },
-        // } );
-      } else if ( keys.right ) {
-        // p.dir = Direction.right;
-        // if ( mc.checkTile( p.tilePos.x + 1, p.tilePos.y ) ) {
-        //   p.tilePos.x++;
-        //   p.isMoving = true;
-        // }
-        // ac.startAnimation( {
-        //   action: () => {
-        //     if ( p.isMoving ) mc.offsetx--;
-        //     frameIndex = p.dir;
-        //   },
-        //   frames: 8,
-        //   onComplete: () => {
-        //     if ( p.isMoving || ioController.getKeys().right ) {
-        //       ac.startAnimation( {
-        //         action: () => {
-        //           if ( p.isMoving ) mc.offsetx--;
-        //           frameIndex = 9;
-        //         },
-        //         frames: 8,
-        //       } );
-        //     }
-        //   },
-        // } );
-      }
-      frameIndex = p.dir;
-  }
-  function gameLoop() {
-    timestamp = performance.now();
-    if ( ac.ready ) {
-      handleInput();
-    }
-    ac.step();
-
-    //ctx.clearRect( 0, 0, ctx.canvas.width, ctx.canvas.height );
-    //mc.render( ctx );
-
-    //ctx.drawImage( walkingImgs[frameIndex], p.x, p.y ); // p.render();
-
-    delta = performance.now() - timestamp;
-    if ( delta > 1 ) console.warn( `--> gameLoop took ${delta}ms` );
-    requestAnimationFrame( gameLoop );
-  }
-
-  //gameLoop();
 }

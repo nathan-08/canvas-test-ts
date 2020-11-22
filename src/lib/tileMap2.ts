@@ -1,20 +1,27 @@
 // nature animations start: (231, 47)
 import { Point, Player } from '.';
-export class TileMap2 {
+import { ITileMap } from '../types';
+export class TileMap2 implements ITileMap {
   private numAnimations = 8;
   private renderCount = 0;
   private animationStage = 0;
-  private x = 0;
-  private y = 0;
+  public w16 = 8;
+  public h16 = 8;
+  public x = 0;
+  public y = 0;
   private w = 16;
   private h = 16;
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
-  private tileAtlas = [
-    [1, 0, 1, 0],
-    [0, 1, 0, 1],
-    [1, 0, 1, 0],
-    [0, 1, 0, 1],
+  private walkableMap = [
+    [ 1, 1, 1, 1, 1, 1, 1, 1 ],
+    [ 1, 1, 1, 1, 1, 1, 1, 1 ],
+    [ 1, 1, 1, 1, 0, 0, 0, 1 ],
+    [ 0, 0, 0, 0, 0, 0, 0, 1 ],
+    [ 0, 0, 0, 0, 0, 0, 0, 1 ],
+    [ 0, 0, 0, 0, 0, 0, 0, 1 ],
+    [ 0, 0, 0, 0, 0, 0, 0, 1 ],
+    [ 0, 0, 0, 0, 0, 0, 0, 1 ],
   ];
   private tileAtlas2 = [
     [2, 2, 2, 2, 2, 2, 2, 2,  8,11,14,14,14,14,24,26],
@@ -23,12 +30,12 @@ export class TileMap2 {
     [6, 7, 7, 7, 7, 7, 7, 3, 21,23,23,23,19,20,23,22],
     [6, 7, 7, 7, 7, 7, 7, 3,  5, 5, 5, 5, 5, 5,30,31],
     [6, 7, 7, 7, 7, 7, 7, 3,  5, 4, 5, 5, 5, 4,32,33],
-    [4, 4, 4, 4, 4, 4, 4, 4,  5, 5, 5, 5, 5, 5,30,31],
-    [4, 4, 4, 4, 4, 4, 4, 4,  5, 5, 5, 4, 5, 5,32,33],
-    [4, 4, 1, 0, 1, 0, 4, 4,  5, 5, 5, 5, 5, 5,30,31],
-    [4, 4, 0, 1, 0, 1, 4, 4,  5, 4, 5, 5, 5, 4,32,33],
-    [4, 4, 1, 0, 1, 0, 4, 4,  5, 5, 5, 5, 5, 5,30,31],
-    [4, 4, 0, 1, 0, 1, 4, 4,  5, 5, 5, 4, 5, 5,32,33],
+    [4, 4, 4, 4, 4, 4, 4, 4, 34,34,34,34, 5, 5,30,31],
+    [4, 4, 4, 4, 4, 4, 4, 4, 34,34,34,34, 5, 5,32,33],
+    [4, 4, 1, 0, 1, 0, 4, 4, 34,34,34,34, 5, 5,30,31],
+    [4, 4, 0, 1, 0, 1, 4, 4, 34,34,34,34, 5, 4,32,33],
+    [4, 4, 1, 0, 1, 0, 4, 4, 34,34,34,34, 5, 5,30,31],
+    [4, 4, 0, 1, 0, 1, 4, 4, 34,34,34,34, 5, 5,32,33],
     [4, 4, 1, 0, 1, 0, 4, 4, 34,34,34,34, 5, 5,30,31],
     [4, 4, 0, 1, 0, 1, 4, 4, 34,34,34,34, 5, 4,32,33],
     [4, 4, 4, 4, 4, 4, 4, 4, 34,34,34,34, 5, 5,30,31],
@@ -54,8 +61,8 @@ export class TileMap2 {
     6: new Point( 8*2, 8*3 ), // left shoreline
     7: { // water animation
 
-        0: new Point( 16*9, 0 ),
-        1: new Point( 16*9, 8 ),
+        0: new Point( 16*9, 8*0 ),
+        1: new Point( 16*9, 8*1 ),
         2: new Point( 16*9, 8*2 ),
         3: new Point( 16*9, 8*3 ),
         
@@ -98,9 +105,9 @@ export class TileMap2 {
     this.canvas.height = 128;
     this.canvas.setAttribute(
       'style',
-      'image-rendering: pixelated; height: 512px; width: 1024px; background: rgb(248,248,248);',
+      'image-rendering: pixelated; height: 512px; width: 1024px; background: rgb(0, 0, 255);',
     );
-    //document.body.appendChild( this.canvas );
+    document.body.appendChild( this.canvas );
     this.ctx = this.canvas.getContext( '2d' );
     this.ctx.drawImage(
       this.src,
@@ -138,8 +145,12 @@ export class TileMap2 {
     }
     this.ctx.putImageData( imgData, 0, 0 );
   }
+  public checkTile( x: number, y: number ): boolean {
+    if ( x < 0 || x === this.w16 || y < 0 || y === this.h16 ) return false;
+    return this.walkableMap[y][x] === 0;
+  }
   public render( ctx: CanvasRenderingContext2D ): void {
-    if ( this.renderCount % 20 === 0 ) {
+    if ( this.renderCount % 30 === 0 ) {
         this.animationStage++;
         if ( this.animationStage === this.numAnimations ) { // TODO get num animations (hardcoded)
             this.animationStage = 0;
@@ -171,6 +182,12 @@ export class TileMap2 {
     }
     this.renderCount ++;
   }
+  public legsUnderGrass( p: Player ): boolean {
+    const px = p.tilePos.x * 2 + 1;
+    const py = p.tilePos.y * 2 + 1;
+    const tileVal = this.tileAtlas2[py][px];
+    return tileVal === 34;
+  }
   public renderGrass( ctx: CanvasRenderingContext2D, p: Player ): void {
     const px = p.tilePos.x * 2 + 1;
     const py = p.tilePos.y * 2 + 1;
@@ -182,8 +199,8 @@ export class TileMap2 {
             ( <Point>this.tileHash[34] ).y,
             8,
             8,
-            px * 8,
-            py * 8,
+            this.x + px * 8,
+            this.y + py * 8,
             8,
             8,
         );
@@ -193,8 +210,8 @@ export class TileMap2 {
             ( <Point>this.tileHash[34] ).y,
             8,
             8,
-            ( px-1 ) * 8,
-            py * 8,
+            this.x + ( px-1 ) * 8,
+            this.y + py * 8,
             8,
             8,
         );

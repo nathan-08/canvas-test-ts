@@ -20,24 +20,23 @@ export class Player {
   public dir: Direction = Direction.down;
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
+  public frameIndex = 0;
 
   constructor(
-    public x: number,
-    public y: number,
     public tilePos: Point,
     private src: HTMLImageElement,
   ) {
     this.canvas = document.createElement( 'canvas' );
-    this.canvas.width = 128;
+    this.canvas.width = 128 + 32;
     this.canvas.height = 16;
     this.canvas.setAttribute(
       'style',
       `image-rendering: pixelated; width: ${128 * 4}px; height: ${
         16 * 4
-      }px; background: rgb(248,248,248);`,
+      }px; background: rgb(0,0xff,0);`,
     );
     this.ctx = this.canvas.getContext( '2d' );
-    //document.body.appendChild( this.canvas );
+    document.body.appendChild( this.canvas );
     for ( let i = 0; i < 10; i++ ) {
       this.ctx.drawImage(
         this.src,
@@ -62,17 +61,33 @@ export class Player {
     this.ctx.putImageData( imgData, 0, 0 );
   }
 
-  public render( ctx: CanvasRenderingContext2D ): void {
-    ctx.drawImage(
+  public render( ctx: CanvasRenderingContext2D, legsUnderGrass: boolean ): void {
+    ctx.drawImage( // draw top
       this.canvas,
+      16*this.frameIndex,
       0,
-      0,
       16,
+      8,
+      16*4,
+      16*4-4,
       16,
-      16*this.tilePos.x,
-      16*this.tilePos.y - 4,
-      16,
-      16,
+      8,
     );
+
+    // determine if legs are under tall grass
+    if ( legsUnderGrass )
+      ctx.globalCompositeOperation = 'destination-over';
+    ctx.drawImage( //draw bottom
+      this.canvas,
+      16*this.frameIndex,
+      8,
+      16,
+      8,
+      16*4,
+      16*4+4,
+      16,
+      8,
+    );
+    ctx.globalCompositeOperation = 'source-over';
   }
 }
