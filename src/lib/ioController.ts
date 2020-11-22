@@ -1,6 +1,7 @@
 import { Direction, Player, AnimationController } from '.';
-import { ITileMap } from '../types';
+import { ITileMap, IRenderFlags } from '../types';
 import { OutputController } from './outputController';
+import { getFadeInAction, getFadeOutAction } from '../actions';
 
 interface IKeys {
   up: boolean;
@@ -9,6 +10,7 @@ interface IKeys {
   right: boolean;
   a: boolean;
   s: boolean;
+  d: boolean;
 }
 export class IOController {
   // inherit event listeners from base class
@@ -20,6 +22,7 @@ export class IOController {
     right: false,
     a: false,
     s: false,
+    d: false,
   };
 
   public getKeys(): IKeys {
@@ -40,6 +43,7 @@ export class IOController {
 
       case 'a': this.keys.a = true; break;
       case 's': this.keys.s = true; break;
+      case 'd': this.keys.d = true; break;
     }
   }
 
@@ -52,10 +56,18 @@ export class IOController {
 
       case 'a': this.keys.a = false; break;
       case 's': this.keys.s = false; break;
+      case 'd': this.keys.d = false; break;
     }
   }
 
-  public handleInput( p: Player, tileMap: ITileMap, ac: AnimationController, oc: OutputController ): void {
+  public handleInput(
+    p: Player,
+    tileMap: ITileMap,
+    ac: AnimationController,
+    oc: OutputController,
+    ctx: CanvasRenderingContext2D,
+    altCtx: CanvasRenderingContext2D,
+    renderFlags: IRenderFlags ): void {
     p.isMoving = false;
     const { keys } = this;
     switch ( true ) {
@@ -67,6 +79,12 @@ export class IOController {
           },
           frames: 8
         } );
+        break;
+      case keys.s:
+        ac.startAnimation( getFadeOutAction( ctx, altCtx, renderFlags ) );
+        break;
+      case keys.d:
+        ac.startAnimation( getFadeInAction( ctx, altCtx, renderFlags ) );
         break;
       case keys.up:
         p.dir = Direction.up;

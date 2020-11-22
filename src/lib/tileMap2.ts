@@ -1,6 +1,6 @@
 // nature animations start: (231, 47)
-import { Point, Player } from '.';
-import { ITileMap } from '../types';
+import { Point, Player, applyColorPallette } from '.';
+import { ITileMap, IAnimation } from '../types';
 export class TileMap2 implements ITileMap {
   private numAnimations = 8;
   private renderCount = 0;
@@ -30,8 +30,8 @@ export class TileMap2 implements ITileMap {
     [6, 7, 7, 7, 7, 7, 7, 3, 21,23,23,23,19,20,23,22],
     [6, 7, 7, 7, 7, 7, 7, 3,  1, 0, 1, 0, 5, 5,30,31],
     [6, 7, 7, 7, 7, 7, 7, 3,  0, 1, 0, 1, 5, 4,32,33],
-    [4, 4, 4, 4, 4, 4, 4, 4, 34,34,34,34, 5, 5,30,31],
-    [4, 4, 4, 4, 4, 4, 4, 4, 34,34,34,34, 5, 5,32,33],
+    [4, 4, 4, 4, 4, 4, 4, 4,  5, 5, 5, 5, 5, 5,30,31],
+    [4, 4, 4, 4, 4, 4, 4, 4,  5, 5, 5, 4, 5, 5,32,33],
     [4, 4, 1, 0, 1, 0, 4, 4, 34,34,34,34, 5, 5,30,31],
     [4, 4, 0, 1, 0, 1, 4, 4, 34,34,34,34, 5, 4,32,33],
     [4, 4, 1, 0, 1, 0, 4, 4, 34,34,34,34, 5, 5,30,31],
@@ -107,7 +107,6 @@ export class TileMap2 implements ITileMap {
       'style',
       'image-rendering: pixelated; height: 512px; width: 1024px; background: rgb(0, 0, 255);',
     );
-    // document.body.appendChild( this.canvas );
     this.ctx = this.canvas.getContext( '2d' );
     this.ctx.drawImage(
       this.src,
@@ -135,14 +134,8 @@ export class TileMap2 implements ITileMap {
             );
         }
     }
-    // make data on cavnas transparent
     const imgData = this.ctx.getImageData( 0, 0, this.canvas.width, this.canvas.height );
-    const keyPixel = imgData.data[0];
-    for ( let i = 0; i < imgData.data.length; i += 4 ) {
-        if ( imgData.data[i] === keyPixel ) {
-            imgData.data[i + 3] = 0; // set alpha to 0
-        }
-    }
+    applyColorPallette( imgData );
     this.ctx.putImageData( imgData, 0, 0 );
   }
   public checkTile( x: number, y: number ): boolean {
@@ -152,7 +145,7 @@ export class TileMap2 implements ITileMap {
   public render( ctx: CanvasRenderingContext2D ): void {
     if ( this.renderCount % 30 === 0 ) {
         this.animationStage++;
-        if ( this.animationStage === this.numAnimations ) { // TODO get num animations (hardcoded)
+        if ( this.animationStage === this.numAnimations ) {
             this.animationStage = 0;
         }
     }
@@ -169,8 +162,8 @@ export class TileMap2 implements ITileMap {
         }
         ctx.drawImage(
           this.canvas,
-          sx,//this.tileHash[this.tileAtlasArr[this.animationStage][y][x]].x,
-          sy,//this.tileHash[this.tileAtlasArr[this.animationStage][y][x]].y,
+          sx,
+          sy,
           8,
           8,
           this.x + 8 * x,

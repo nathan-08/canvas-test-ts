@@ -1,2 +1,2 @@
-export { getFadeInAnimation } from './fadeIn';
-export { getFadeOutAnimation } from './fadeOut';
+export { getFadeInAction } from './fadeIn';
+export { getFadeOutAction } from './fadeOut';

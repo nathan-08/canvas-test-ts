@@ -1,3 +1,5 @@
+import { applyColorPallette } from '.';
+
 export class OutputController {
     public showDialog = false;
     private canvas: HTMLCanvasElement;
@@ -15,6 +17,9 @@ export class OutputController {
         );
         // document.body.appendChild( this.canvas );
         this.ctx.drawImage( this.src, 0, 0 );
+        const imgData = this.ctx.getImageData( 0, 0, this.canvas.width, this.canvas.height );
+        applyColorPallette( imgData );
+        this.ctx.putImageData( imgData, 0, 0 );
     }
     public testRender( ctx: CanvasRenderingContext2D ): void {
         if ( !this.showDialog ) return;
@@ -28,7 +33,7 @@ export class OutputController {
         for ( let i = 0; i < msg.length; i++ ) {
             if ( msg[i] >= 'a' && msg[i] <= 'z' ) {
                 ctx.drawImage(
-                    this.src,
+                    this.canvas,
                     8 * ( msg[i].charCodeAt( 0 ) - 97 ),
                     8 * 1,
                     8,
@@ -41,7 +46,7 @@ export class OutputController {
             }
             if ( msg[i] >= 'A' && msg[i] <= 'Z' ) {
                 ctx.drawImage(
-                    this.src,
+                    this.canvas,
                     8 * ( msg[i].charCodeAt( 0 ) - 65 ),
                     0,
                     8,
@@ -54,7 +59,7 @@ export class OutputController {
             }
             if ( msg[i] === '!' ) {
                 ctx.drawImage(
-                    this.src,
+                    this.canvas,
                     8 * 20,
                     8 * 2,
                     8,
@@ -70,7 +75,7 @@ export class OutputController {
     }
     private renderDownArrow( ctx: CanvasRenderingContext2D ) {
         ctx.drawImage(
-            this.src,
+            this.canvas,
             8 * 12,
             8 * 2,
             8, 
@@ -130,7 +135,7 @@ export class OutputController {
         );
         for ( let i = 0; i < 14; i++ ) { // draw top horiz. bar
             ctx.drawImage(
-                this.src,
+                this.canvas,
                 8,
                 8 * 3,
                 8,
@@ -143,7 +148,7 @@ export class OutputController {
         }
         for ( let i = 0; i < 14; i++ ) { // draw bottom horiz. bar
             ctx.drawImage(
-                this.src,
+                this.canvas,
                 8,
                 8 * 3,
                 8,
@@ -156,7 +161,7 @@ export class OutputController {
         }
         for ( let i = 0; i < 4; i++ ) { // draw left vert. bar
             ctx.drawImage(
-                this.src,
+                this.canvas,
                 0,
                 8 * 4,
                 8,
@@ -169,7 +174,7 @@ export class OutputController {
         }
         for ( let i = 0; i < 4; i++ ) { // draw right vert. bar
             ctx.drawImage(
-                this.src,
+                this.canvas,
                 0,
                 8 * 4,
                 8,

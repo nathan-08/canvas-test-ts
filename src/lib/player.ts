@@ -1,4 +1,4 @@
-import { Direction, Point, Rect } from '.';
+import { Direction, Point, Rect, applyColorPallette } from '.';
 
 // girl 16*8.5 // boy 16*2 + 2
 const pSprites: Rect[] = [
@@ -50,14 +50,8 @@ export class Player {
         16,
       );
     }
-    // get image data, make transparent
     const imgData = this.ctx.getImageData( 0, 0, this.canvas.width, this.canvas.height );
-    const keyPixel = imgData.data[0];
-    for ( let i = 0; i < imgData.data.length; i += 4 ) {
-      if ( imgData.data[i] === keyPixel ) {
-        imgData.data[i + 3] = 0; // set alpha to 0
-      }
-    }
+    applyColorPallette( imgData );
     this.ctx.putImageData( imgData, 0, 0 );
   }
 
