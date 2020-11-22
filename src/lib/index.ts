@@ -10,3 +10,4 @@ export { imgDataToImage } from './imgDataToImage';
 export { drawSprite } from './drawSprite';
 export { getPlayerImgs } from './getPlayerImgs';
 export { TileMap2 } from './tileMap2';
+export { OutputController } from './outputController';

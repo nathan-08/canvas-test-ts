@@ -36,7 +36,7 @@ export class Player {
       }px; background: rgb(0,0xff,0);`,
     );
     this.ctx = this.canvas.getContext( '2d' );
-    document.body.appendChild( this.canvas );
+    // document.body.appendChild( this.canvas );
     for ( let i = 0; i < 10; i++ ) {
       this.ctx.drawImage(
         this.src,

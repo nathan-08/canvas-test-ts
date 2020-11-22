@@ -7,6 +7,7 @@ import {
   IOController,
   AnimationController,
   ImageAsset,
+  OutputController,
 } from './lib';
 
 window.onload = main;
@@ -22,21 +23,21 @@ async function main(): Promise<void> {
   document.body.appendChild( canvas );
   const ctx = canvas.getContext( '2d' );
 
-  // Load images //
   const spriteImg = new ImageAsset( '../assets/pokemon.png' );
   const tileset = new ImageAsset( '../assets/tileset.png' );
-  await Promise.all( [spriteImg.wait(), tileset.wait()] );
+  const fontTileset = new ImageAsset( '../assets/font_a.png' );
+  await Promise.all( [spriteImg.wait(), tileset.wait(), fontTileset.wait()] );
 
-  // set up gameloop stuff
   const p = new Player( new Point( 4, 4 ), spriteImg.img );
-  //const walkingImgs = await getPlayerImgs( spriteImg.img, altCtx );
+  const outputController = new OutputController( fontTileset.img );
   const io = new IOController();
   const ac = new AnimationController();
   const tileMap = new TileMap2( tileset.img );
+
   // GAME LOOP //
   function gameLoop2() {
     if ( ac.ready ) {
-      io.handleInput( p, tileMap, ac );
+      io.handleInput( p, tileMap, ac, outputController );
     }
     ac.step();
     ctx.clearRect( 0, 0, ctx.canvas.width, ctx.canvas.height );
@@ -46,6 +47,7 @@ async function main(): Promise<void> {
     ctx.fillStyle = 'rgb( 248, 248, 248 )';
     ctx.fillRect( tileMap.x, tileMap.y, tileMap.w16 * 16, tileMap.h16 * 16 );
     ctx.globalCompositeOperation = 'source-over';
+    outputController.testRender( ctx );
     requestAnimationFrame( gameLoop2 );
   }
   gameLoop2();

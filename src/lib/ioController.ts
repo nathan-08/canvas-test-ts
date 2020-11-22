@@ -1,5 +1,6 @@
 import { Direction, Player, AnimationController } from '.';
 import { ITileMap } from '../types';
+import { OutputController } from './outputController';
 
 interface IKeys {
   up: boolean;
@@ -54,12 +55,18 @@ export class IOController {
     }
   }
 
-  public handleInput( p: Player, tileMap: ITileMap, ac: AnimationController ): void {
+  public handleInput( p: Player, tileMap: ITileMap, ac: AnimationController, oc: OutputController ): void {
     p.isMoving = false;
     const { keys } = this;
     switch ( true ) {
       case keys.a:
-        ac.startAnimation( { action: () => console.log( 'a-okay' ), frames: 8, } );
+        ac.startAnimation( {
+          action: ( n: number ) => {
+            if ( n === 8 )
+              oc.showDialog = !oc.showDialog;
+          },
+          frames: 8
+        } );
         break;
       case keys.up:
         p.dir = Direction.up;

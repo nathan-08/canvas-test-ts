@@ -15,7 +15,7 @@ export class TileMap2 implements ITileMap {
   private ctx: CanvasRenderingContext2D;
   private walkableMap = [
     [ 1, 1, 1, 1, 1, 1, 1, 1 ],
-    [ 1, 1, 1, 1, 1, 1, 1, 1 ],
+    [ 1, 1, 1, 1, 1, 1, 0, 1 ],
     [ 1, 1, 1, 1, 0, 0, 0, 1 ],
     [ 0, 0, 0, 0, 0, 0, 0, 1 ],
     [ 0, 0, 0, 0, 0, 0, 0, 1 ],
@@ -28,8 +28,8 @@ export class TileMap2 implements ITileMap {
     [6, 7, 7, 7, 7, 7, 7, 3,  9,12,15,15,15,15,25,27],
     [6, 7, 7, 7, 7, 7, 7, 3, 10,13,16,16,17,18,28,29],
     [6, 7, 7, 7, 7, 7, 7, 3, 21,23,23,23,19,20,23,22],
-    [6, 7, 7, 7, 7, 7, 7, 3,  5, 5, 5, 5, 5, 5,30,31],
-    [6, 7, 7, 7, 7, 7, 7, 3,  5, 4, 5, 5, 5, 4,32,33],
+    [6, 7, 7, 7, 7, 7, 7, 3,  1, 0, 1, 0, 5, 5,30,31],
+    [6, 7, 7, 7, 7, 7, 7, 3,  0, 1, 0, 1, 5, 4,32,33],
     [4, 4, 4, 4, 4, 4, 4, 4, 34,34,34,34, 5, 5,30,31],
     [4, 4, 4, 4, 4, 4, 4, 4, 34,34,34,34, 5, 5,32,33],
     [4, 4, 1, 0, 1, 0, 4, 4, 34,34,34,34, 5, 5,30,31],
@@ -107,7 +107,7 @@ export class TileMap2 implements ITileMap {
       'style',
       'image-rendering: pixelated; height: 512px; width: 1024px; background: rgb(0, 0, 255);',
     );
-    document.body.appendChild( this.canvas );
+    // document.body.appendChild( this.canvas );
     this.ctx = this.canvas.getContext( '2d' );
     this.ctx.drawImage(
       this.src,
