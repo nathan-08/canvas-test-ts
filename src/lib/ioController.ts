@@ -1,4 +1,4 @@
-import { Direction, Player, AnimationController } from '.';
+import { Direction, Player, AnimationController, formatText } from '.';
 import { ITileMap, IRenderFlags, IAnimation } from '../types';
 import { OutputController } from './outputController';
 import { getFadeInAction, getFadeOutAction } from '../actions';
@@ -82,7 +82,15 @@ export class IOController {
         } );
         break;
       case keys.s:
-        ac.startAnimation( getFadeOutAction( ctx, altCtx, renderFlags ) );
+        ac.startAnimation( {
+          frames: 8,
+          action: ( n: number ) => {
+            if ( n === 8 ) {
+              const res = formatText( 'hello world how are you?' );
+              console.log( res );
+            }
+          },
+        } );
         break;
       case keys.d:
         ac.startAnimation( getFadeInAction( ctx, altCtx, renderFlags ) );

@@ -18,12 +18,12 @@ window.onload = main;
 
 async function main(): Promise<void> {
   const canvas = document.createElement( 'canvas' );
-  canvas.width = 128;
-  canvas.height = 128;
-  canvas.setAttribute(
-    'style',
-    'border: 0px solid blue; image-rendering: pixelated; height: 512px; width: 512px; background: rgb(20,20,20)',
-  );
+  canvas.width = 16 * 10;
+  canvas.height = 16 * 9;
+  canvas.style.imageRendering = 'pixelated';
+  canvas.style.width = `${canvas.width * 4}px`;
+  canvas.style.height = `${canvas.height * 4}px`;
+  canvas.style.background = `blue`;
   document.body.appendChild( canvas );
   const ctx = canvas.getContext( '2d' );
 
