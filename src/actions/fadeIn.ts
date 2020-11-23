@@ -11,12 +11,13 @@ export function getFadeInAction(
   let imgData: ImageData;
   let imgData2: ImageData;
   return {
+    frames: 31,
     action: ( n: number ) => {
-      if ( n === 61 ) {
+      if ( n === 31 ) {
         renderFlags.altCanvas = true;
         renderFlags.renderOverrideFlag = false;
       }
-      if ( n === 60 ) {
+      if ( n === 30 ) {
         renderFlags.renderOverrideFlag = true;
         imgData = altCtx.getImageData(
           0,
@@ -42,7 +43,7 @@ export function getFadeInAction(
         }
         ctx.putImageData( imgData2, 0, 0 );
       }
-      if ( n === 40 ) {
+      if ( n === 20 ) {
         for ( let i = 0; i < imgData.data.length; i += 4 ) {
           switch ( imgData.data[i] ) {
             case lightest[0]:
@@ -67,13 +68,12 @@ export function getFadeInAction(
         }
         ctx.putImageData( imgData2, 0, 0 );
       }
-      if ( n === 20 ) {
+      if ( n === 10 ) {
         // back to full color
         renderFlags.renderOverrideFlag = false;
         renderFlags.altCanvas = false;
       }
     },
-    frames: 61,
     onComplete: () => null,
   };
 }

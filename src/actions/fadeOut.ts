@@ -10,8 +10,9 @@ export function getFadeOutAction(
 ): IAnimation {
   const imgData = ctx.getImageData( 0, 0, ctx.canvas.width, ctx.canvas.height );
   return {
+    frames: 30,
     action: ( n: number ) => {
-      if ( n === 60 ) {
+      if ( n === 30 ) {
         renderFlags.renderOverrideFlag = true; // disable normal renderer while animation is running
         for ( let i = 0; i < imgData.data.length; i += 4 ) {
           switch ( imgData.data[i] ) {
@@ -34,7 +35,7 @@ export function getFadeOutAction(
         }
         ctx.putImageData( imgData, 0, 0 );
       }
-      if ( n === 40 ) {
+      if ( n === 20 ) {
         for ( let i = 0; i < imgData.data.length; i += 4 ) {
           switch ( imgData.data[i] ) {
             case light[0]:
@@ -51,7 +52,7 @@ export function getFadeOutAction(
         }
         ctx.putImageData( imgData, 0, 0 );
       }
-      if ( n === 20 ) {
+      if ( n === 10 ) {
         // all black
         for ( let i = 0; i < imgData.data.length; i += 4 ) {
           switch ( imgData.data[i] ) {
@@ -65,7 +66,6 @@ export function getFadeOutAction(
         ctx.putImageData( imgData, 0, 0 );
       }
     },
-    frames: 60,
     onComplete: () => null,
   };
 }

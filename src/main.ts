@@ -55,9 +55,9 @@ async function main(): Promise<void> {
     onComplete: () => {
       mc.setMapIndex( 0 ); // to outside
       // adjust player and map positions
-      p.tilePos.x = 6;
+      p.tilePos.x = 10;
       p.tilePos.y = 1;
-      mc.x = -16 * 2;
+      mc.x = -16 * 6;
       mc.y = 16 * 3;
       ac.startAnimation( {
         ...getFadeInAction( ctx, altCtx, renderFlags ),

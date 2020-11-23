@@ -144,31 +144,43 @@ export class IOController {
             p.isMoving = true;
           }
 
-          ac.startAnimation( {
-            action: () => {
-              if ( p.isMoving ) tileMap.y--;
-              p.frameIndex = p.dir;
-            },
-            frames: 8,
-            onComplete: () => {
-              if ( p.isMoving || keys.down ) {
-                ac.startAnimation( {
-                  action: () => {
-                    if ( p.isMoving ) tileMap.y--;
-                    p.frameIndex = p.step ? 0 : 2;
-                  },
-                  frames: 8,
-                  onComplete: () => {
-                    p.frameIndex = p.dir;
-                    p.step = !p.step;
-                    if ( tileAction ) {
-                      ac.startAnimation( tileAction() );
-                    }
-                  },
-                } );
+          if ( tileAction ) {
+            p.frameIndex = p.dir;
+            ac.startAnimation( {
+              frames: 4,
+              action: () => null,
+              onComplete: () => {
+                ac.startAnimation( tileAction() );
               }
-            }
-          } );
+            } );
+          } else
+          {
+            ac.startAnimation( {
+              action: () => {
+                if ( p.isMoving ) tileMap.y--;
+                p.frameIndex = p.dir;
+              },
+              frames: 8,
+              onComplete: () => {
+                if ( p.isMoving || keys.down ) {
+                  ac.startAnimation( {
+                    action: () => {
+                      if ( p.isMoving ) tileMap.y--;
+                      p.frameIndex = p.step ? 0 : 2;
+                    },
+                    frames: 8,
+                    onComplete: () => {
+                      p.frameIndex = p.dir;
+                      p.step = !p.step;
+                      if ( tileAction ) {
+                        ac.startAnimation( tileAction() );
+                      }
+                    },
+                  } );
+                }
+              }
+            } );
+          }
         break;
         case keys.left: 
           p.dir = Direction.left;
