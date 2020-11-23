@@ -51,7 +51,7 @@ export class Player {
       );
     }
     const imgData = this.ctx.getImageData( 0, 0, this.canvas.width, this.canvas.height );
-    applyColorPallette( imgData );
+    applyColorPallette( imgData, true );
     this.ctx.putImageData( imgData, 0, 0 );
   }
 

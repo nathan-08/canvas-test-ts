@@ -13,6 +13,7 @@ import {
 } from './lib';
 import { IRenderFlags } from './types';
 import { getFadeInAction, getFadeOutAction } from './actions';
+import { colorscheme } from './colorscheme';
 
 window.onload = main;
 
@@ -23,7 +24,7 @@ async function main(): Promise<void> {
   canvas.style.imageRendering = 'pixelated';
   canvas.style.width = `${canvas.width * 4}px`;
   canvas.style.height = `${canvas.height * 4}px`;
-  canvas.style.background = `blue`;
+  canvas.style.background = 'rgb(20,20,20)';
   document.body.appendChild( canvas );
   const ctx = canvas.getContext( '2d' );
 
@@ -46,7 +47,6 @@ async function main(): Promise<void> {
       mc.y = -16 * 3;
       ac.startAnimation( {
         ...getFadeInAction( ctx, altCtx, renderFlags ),
-        onComplete: () => console.log( 'home sweet home!' ),
       } );
     }
   } ) );
@@ -61,7 +61,6 @@ async function main(): Promise<void> {
       mc.y = 16 * 3;
       ac.startAnimation( {
         ...getFadeInAction( ctx, altCtx, renderFlags ),
-        onComplete: () => console.log( 'outside!' ),
       } );
     },
   } ) );
@@ -89,7 +88,7 @@ async function main(): Promise<void> {
       mc.render( _ctx );
       p.render( _ctx, mc.legsUnderGrass( p ) );
       _ctx.globalCompositeOperation = 'destination-over';
-      _ctx.fillStyle = 'rgb( 155, 188, 15 )';
+      _ctx.fillStyle = `rgb(${colorscheme.lightest[0]},${colorscheme.lightest[1]},${colorscheme.lightest[2]})`;
       _ctx.fillRect( mc.x, mc.y, mc.w16 * 16, mc.h16 * 16 );
       _ctx.globalCompositeOperation = 'source-over';
       outputController.testRender( _ctx );

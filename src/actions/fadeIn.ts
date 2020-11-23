@@ -1,4 +1,7 @@
 import { IAnimation, IRenderFlags } from '../types';
+import { colorscheme } from '../colorscheme';
+
+const { lightest, light, dark, black } = colorscheme;
 
 export function getFadeInAction(
   ctx: CanvasRenderingContext2D,
@@ -24,16 +27,16 @@ export function getFadeInAction(
         imgData2 = ctx.createImageData( imgData );
         for ( let i = 0; i < imgData.data.length; i += 4 ) {
           switch ( imgData.data[i] ) {
-            case 155:
-              imgData2.data[i + 0] = 48;
-              imgData2.data[i + 1] = 98;
-              imgData2.data[i + 2] = 48;
+            case lightest[0]:
+              imgData2.data[i + 0] = dark[0];
+              imgData2.data[i + 1] = dark[1];
+              imgData2.data[i + 2] = dark[2];
               imgData2.data[i + 3] = 255;
               break;
             default:
-              imgData2.data[i + 0] = 15;
-              imgData2.data[i + 1] = 56;
-              imgData2.data[i + 2] = 15;
+              imgData2.data[i + 0] = black[0];
+              imgData2.data[i + 1] = black[1];
+              imgData2.data[i + 2] = black[2];
               imgData2.data[i + 3] = imgData.data[i + 3];
           }
         }
@@ -42,22 +45,22 @@ export function getFadeInAction(
       if ( n === 40 ) {
         for ( let i = 0; i < imgData.data.length; i += 4 ) {
           switch ( imgData.data[i] ) {
-            case 155:
-              imgData2.data[i + 0] = 139;
-              imgData2.data[i + 1] = 172;
-              imgData2.data[i + 2] = 15;
+            case lightest[0]:
+              imgData2.data[i + 0] = light[0];
+              imgData2.data[i + 1] = light[1];
+              imgData2.data[i + 2] = light[2];
               imgData2.data[i + 3] = 255;
               break;
-            case 139:
-              imgData2.data[i + 0] = 48;
-              imgData2.data[i + 1] = 98;
-              imgData2.data[i + 2] = 48;
+            case light[0]:
+              imgData2.data[i + 0] = dark[0];
+              imgData2.data[i + 1] = dark[1];
+              imgData2.data[i + 2] = dark[2];
               imgData2.data[i + 3] = 255;
               break;
             default:
-              imgData2.data[i + 0] = 15;
-              imgData2.data[i + 1] = 56;
-              imgData2.data[i + 2] = 15;
+              imgData2.data[i + 0] = black[0];
+              imgData2.data[i + 1] = black[1];
+              imgData2.data[i + 2] = black[2];
               imgData2.data[i + 3] = imgData.data[i + 3];
 
           }

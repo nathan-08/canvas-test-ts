@@ -1,4 +1,7 @@
 import { IAnimation, IRenderFlags } from '../types';
+import { colorscheme } from '../colorscheme';
+
+const { lightest, light, dark, black } = colorscheme;
 
 export function getFadeOutAction(
   ctx: CanvasRenderingContext2D,
@@ -12,20 +15,20 @@ export function getFadeOutAction(
         renderFlags.renderOverrideFlag = true; // disable normal renderer while animation is running
         for ( let i = 0; i < imgData.data.length; i += 4 ) {
           switch ( imgData.data[i] ) {
-            case 155:
-              imgData.data[i + 0] = 139;
-              imgData.data[i + 1] = 172;
-              imgData.data[i + 2] = 15;
+            case lightest[0]:
+              imgData.data[i + 0] = light[0];
+              imgData.data[i + 1] = light[1];
+              imgData.data[i + 2] = light[2];
               break;
-            case 139:
-              imgData.data[i + 0] = 48;
-              imgData.data[i + 1] = 98;
-              imgData.data[i + 2] = 48;
+            case light[0]:
+              imgData.data[i + 0] = dark[0];
+              imgData.data[i + 1] = dark[1];
+              imgData.data[i + 2] = dark[2];
               break;
-            case 48:
-              imgData.data[i + 0] = 15;
-              imgData.data[i + 1] = 56;
-              imgData.data[i + 2] = 15;
+            case dark[0]:
+              imgData.data[i + 0] = black[0];
+              imgData.data[i + 1] = black[1];
+              imgData.data[i + 2] = black[2];
               break;
           }
         }
@@ -34,15 +37,15 @@ export function getFadeOutAction(
       if ( n === 40 ) {
         for ( let i = 0; i < imgData.data.length; i += 4 ) {
           switch ( imgData.data[i] ) {
-            case 139:
-              imgData.data[i + 0] = 48;
-              imgData.data[i + 1] = 98;
-              imgData.data[i + 2] = 48;
+            case light[0]:
+              imgData.data[i + 0] = dark[0];
+              imgData.data[i + 1] = dark[1];
+              imgData.data[i + 2] = dark[2];
               break;
-            case 48:
-              imgData.data[i + 0] = 15;
-              imgData.data[i + 1] = 56;
-              imgData.data[i + 2] = 15;
+            case dark[0]:
+              imgData.data[i + 0] = black[0];
+              imgData.data[i + 1] = black[1];
+              imgData.data[i + 2] = black[2];
               break;
           }
         }
@@ -52,10 +55,10 @@ export function getFadeOutAction(
         // all black
         for ( let i = 0; i < imgData.data.length; i += 4 ) {
           switch ( imgData.data[i] ) {
-            case 48:
-              imgData.data[i + 0] = 15;
-              imgData.data[i + 1] = 56;
-              imgData.data[i + 2] = 15;
+            case dark[0]:
+              imgData.data[i + 0] = black[0];
+              imgData.data[i + 1] = black[1];
+              imgData.data[i + 2] = black[2];
               break;
           }
         }
