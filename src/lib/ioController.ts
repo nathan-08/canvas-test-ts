@@ -1,5 +1,5 @@
 import { Direction, Player, AnimationController } from '.';
-import { ITileMap, IRenderFlags } from '../types';
+import { ITileMap, IRenderFlags, IAnimation } from '../types';
 import { OutputController } from './outputController';
 import { getFadeInAction, getFadeOutAction } from '../actions';
 
@@ -70,6 +70,7 @@ export class IOController {
     renderFlags: IRenderFlags ): void {
     p.isMoving = false;
     const { keys } = this;
+    let tileData, walkable, tileAction: ()=>IAnimation;
     switch ( true ) {
       case keys.a:
         ac.startAnimation( {
@@ -89,7 +90,10 @@ export class IOController {
       case keys.up:
         p.dir = Direction.up;
         
-        if ( tileMap.checkTile( p.tilePos.x, p.tilePos.y - 1 ) ) {
+        tileData = tileMap.checkTile( p.tilePos.x, p.tilePos.y - 1 );
+        walkable = tileData.walkable;
+        tileAction = tileData.action;
+        if ( walkable ) {
           p.tilePos.y--;
           p.isMoving = true;
         }
@@ -108,7 +112,14 @@ export class IOController {
                   p.frameIndex = p.step ? 5 : 3;
                 },
                 frames: 8,
-                onComplete: () => p.step = !p.step,
+                onComplete: () => {
+                  p.frameIndex = p.dir;
+                  p.step = !p.step;
+                  // start tile-triggered actions
+                  if ( tileAction ) {
+                    ac.startAnimation( tileAction() );
+                  }
+                },
               } );
             }
           },
@@ -117,7 +128,10 @@ export class IOController {
         break;
         case keys.down: 
           p.dir = Direction.down;
-          if ( tileMap.checkTile( p.tilePos.x, p.tilePos.y + 1 ) ) {
+          tileData = tileMap.checkTile( p.tilePos.x, p.tilePos.y + 1 );
+          walkable = tileData.walkable;
+          tileAction = tileData.action;
+          if ( walkable ) {
             p.tilePos.y++;
             p.isMoving = true;
           }
@@ -136,7 +150,13 @@ export class IOController {
                     p.frameIndex = p.step ? 0 : 2;
                   },
                   frames: 8,
-                  onComplete: () => p.step = !p.step,
+                  onComplete: () => {
+                    p.frameIndex = p.dir;
+                    p.step = !p.step;
+                    if ( tileAction ) {
+                      ac.startAnimation( tileAction() );
+                    }
+                  },
                 } );
               }
             }
@@ -144,7 +164,10 @@ export class IOController {
         break;
         case keys.left: 
           p.dir = Direction.left;
-          if ( tileMap.checkTile( p.tilePos.x - 1, p.tilePos.y ) ) {
+          tileData = tileMap.checkTile( p.tilePos.x - 1, p.tilePos.y );
+          walkable = tileData.walkable;
+          tileAction = tileData.action;
+          if ( walkable ) {
             p.tilePos.x--;
             p.isMoving = true;
           }
@@ -163,6 +186,12 @@ export class IOController {
                     p.frameIndex = 7;
                   },
                   frames: 8,
+                  onComplete: () => {
+                    p.frameIndex = p.dir;
+                    if ( tileAction ) {
+                      ac.startAnimation( tileAction() );
+                    }
+                  }
                 } );
               }
             }
@@ -170,7 +199,10 @@ export class IOController {
           break;
         case keys.right: 
           p.dir = Direction.right;
-          if ( tileMap.checkTile( p.tilePos.x + 1, p.tilePos.y ) ) {
+          tileData = tileMap.checkTile( p.tilePos.x + 1, p.tilePos.y );
+          walkable = tileData.walkable;
+          tileAction = tileData.action;
+          if ( walkable ) {
             p.tilePos.x++;
             p.isMoving = true;
           }
@@ -189,6 +221,12 @@ export class IOController {
                     p.frameIndex = 9;
                   },
                   frames: 8,
+                  onComplete: () => {
+                    p.frameIndex = p.dir;
+                    if ( tileAction ) {
+                      ac.startAnimation( tileAction() );
+                    }
+                  }
                 } );
               }
             }
