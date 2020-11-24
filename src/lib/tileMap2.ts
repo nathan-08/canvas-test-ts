@@ -1,7 +1,9 @@
 // nature animations start: (231, 47)
-import { Point, Player, applyColorPallette, Direction } from '.';
+import { Point, Player, applyColorPallette, Direction, NPC } from '.';
 import { ITileMap, IAnimation } from '../types';
+import { AnimationController } from './animationController';
 import { OutputController } from './outputController';
+import { Rect } from './rect';
 
 export class MapController implements ITileMap {
   private canvas: HTMLCanvasElement;
@@ -90,6 +92,7 @@ abstract class BaseMap implements ITileMap {
   abstract y: number;
   abstract w16: number;
   abstract h16: number;
+  protected npcs: NPC[];
   protected abstract walkableMap: number[][];
   protected abstract actionMap: ( ()=>IAnimation[] )[][];
   protected abstract interactiveTiles: { [x: number]: { [y: number]: ( d: Direction ) => IAnimation[] }};
@@ -119,6 +122,13 @@ abstract class BaseMap implements ITileMap {
       actions = f( p.dir );
     }
     catch {}
+    if ( !actions ) {
+      // check npcs
+      const facingNpc = this.npcs.find( npc => npc.tilePos.x === x && npc.tilePos.y === y );
+      if ( facingNpc ) {
+        actions = facingNpc.getActionSequence( p.dir );
+      }
+    }
     return actions;
   }
   abstract legsUnderGrass( p: Player ): boolean;
@@ -132,6 +142,11 @@ abstract class BaseMap implements ITileMap {
       action = this.actionMap[y][x];
     }
     catch {}
+    if ( walkable ) {
+      if ( this.npcs.some( npc => npc.tilePos.x === x && npc.tilePos.y === y ) ) {
+        walkable = false;
+      }
+    }
 
     return {
       walkable,
@@ -190,6 +205,7 @@ export class HouseMap extends BaseMap implements ITileMap {
     [18,19, 0, 0, 0, 0, 0, 0,  2, 2, 2, 2, 0, 0,18,19 ],
     [16,17, 0, 0, 0, 0, 0, 0,  3, 3, 3, 3, 0, 0,16,17 ],
   ];
+  protected npcs: NPC[] = [];
   protected interactiveTiles: { [x: number]: { [y: number]: ( d: Direction ) => IAnimation[] }} = {
     0: {
       1: ( d: Direction ): IAnimation[] => {
@@ -356,34 +372,6 @@ export class TileMap2 extends BaseMap implements ITileMap { // outdoor map
       },
     }
   }
-  // public getInteractiveTileAction( p: Player ): IAnimation[] | null {
-  //   let x, y;
-  //   switch ( p.dir ) {
-  //     case Direction.up:
-  //       x = p.tilePos.x;
-  //       y = p.tilePos.y-1;
-  //       break;
-  //     case Direction.down:
-  //       x = p.tilePos.x;
-  //       y = p.tilePos.y+1;
-  //       break;
-  //     case Direction.left:
-  //       x = p.tilePos.x-1;
-  //       y = p.tilePos.y;
-  //       break;
-  //     case Direction.right:
-  //       x = p.tilePos.x+1;
-  //       y = p.tilePos.y;
-  //       break;
-  //   }
-  //   let actions: IAnimation[] = null
-  //   try {
-  //     const f = this.interactiveTiles[x][y];
-  //     actions = f( p.dir );
-  //   }
-  //   catch {}
-  //   return actions;
-  // }
   private tileHash: { [index: number]: Point | { [index:number]: Point } } = {
     0: new Point( 8*12, 8*2 ), // rough grass
     1: {
@@ -451,9 +439,23 @@ export class TileMap2 extends BaseMap implements ITileMap { // outdoor map
   constructor(
     private doorAction: () => IAnimation[],
     private oc: OutputController,
+    private npcCanvas: HTMLCanvasElement,
+    private p: Player,
+    private ac: AnimationController,
     ) {
     super();
   }
+  protected npcs = [
+    new NPC(
+      this.npcCanvas,
+      new Rect( 16, 16, 16, 16 ),
+      new Point( 6,2 ),
+      this.oc,
+      this,
+      this.p,
+      this.ac,
+    )
+  ];
   public render( ctx: CanvasRenderingContext2D, src: HTMLCanvasElement ): void {
     if ( this.renderCount % 30 === 0 ) {
         this.animationStage++;
@@ -485,6 +487,8 @@ export class TileMap2 extends BaseMap implements ITileMap { // outdoor map
         );
       }
     }
+    // render NPC's
+    this.npcs.forEach( npc => npc.render( ctx, this.x, this.y ) );
     this.renderCount ++;
   }
   public legsUnderGrass( p: Player ): boolean {

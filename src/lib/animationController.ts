@@ -1,14 +1,14 @@
 import { IAnimation, IKeys } from '../types';
 
 export class AnimationController {
-  //private action: ( frames?: number ) => void;
-  //private onComplete: () => void;
-
   private frames = 0;
   private actions: IAnimation[] = [];
 
   public get ready(): boolean {
     return this.frames === 0;
+  }
+  public get pending(): boolean {
+    return this.frames === -1;
   }
 
   public startActionSequence( actions: IAnimation[] ): void {
@@ -40,19 +40,4 @@ export class AnimationController {
       }
     }
   }
-
-  // public startAnimation( { action, frames, onComplete }: IAnimation ): void {
-  //   if( !this.ready ) throw new Error( 'Animation in progress' );
-  //   this.action = action;
-  //   this.frames = frames;
-  //   this.onComplete = onComplete;
-  // }
-
-  // public step(): void {
-  //   if( this.frames === 0 ) return;
-  //   this.action( this.frames-- );
-  //   if( this.frames === 0 && this.onComplete ) {
-  //       this.onComplete();
-  //   }
-  // }
 }

@@ -11,9 +11,9 @@ export function getFadeInAction(
   let imgData: ImageData;
   let imgData2: ImageData;
   return {
-    frames: 31,
+    frames: 38,
     action: ( n: number ) => {
-      if ( n === 31 ) {
+      if ( n === 38 ) {
         renderFlags.altCanvas = true;
         renderFlags.renderOverrideFlag = false;
       }

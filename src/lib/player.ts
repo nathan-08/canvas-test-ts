@@ -1,24 +1,11 @@
-import { Direction, Point, Rect, applyColorPallette } from '.';
+import { Direction, Point, Rect, applyColorPallette, boySprites, girlSprites } from '.';
 
-// girl 16*8.5 // boy 16*2 + 2
-const pSprites: Rect[] = [
-  new Rect( 16 * 0 + 9, 16 * 2 + 2, 16, 16 ),
-  new Rect( 16 * 1 + 10, 16 * 2 + 2, 16, 16 ),
-  new Rect( 16 * 2 + 11, 16 * 2 + 2, 16, 16 ),
-  new Rect( 16 * 3 + 12, 16 * 2 + 2, 16, 16 ),
-  new Rect( 16 * 4 + 13, 16 * 2 + 2, 16, 16 ),
-  new Rect( 16 * 5 + 14, 16 * 2 + 2, 16, 16 ),
-  new Rect( 16 * 6 + 15, 16 * 2 + 2, 16, 16 ),
-  new Rect( 16 * 7 + 16, 16 * 2 + 2, 16, 16 ),
-  new Rect( 16 * 8 + 17, 16 * 2 + 2, 16, 16 ),
-  new Rect( 16 * 9 + 18, 16 * 2 + 2, 16, 16 ),
-];
 export class Player {
   public isMoving = false;
   public animation2 = false;
   public step = false;
   public dir: Direction = Direction.down;
-  private canvas: HTMLCanvasElement;
+  public canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
   public frameIndex = 1;
 
@@ -28,24 +15,37 @@ export class Player {
   ) {
     this.canvas = document.createElement( 'canvas' );
     this.canvas.width = 128 + 32;
-    this.canvas.height = 16;
+    this.canvas.height = 16 * 2;
     this.canvas.setAttribute(
       'style',
-      `image-rendering: pixelated; width: ${128 * 4}px; height: ${
-        16 * 4
-      }px; background: rgb(0,0xff,0);`,
+      `image-rendering: pixelated; width: ${( 128+32 ) * 4}px; height: ${
+        16 * 2 * 4
+      }px; background: rgb(0,0,255);`,
     );
     this.ctx = this.canvas.getContext( '2d' );
-    // document.body.appendChild( this.canvas );
+    document.body.appendChild( this.canvas );
     for ( let i = 0; i < 10; i++ ) {
       this.ctx.drawImage(
         this.src,
-        pSprites[i].x,
-        pSprites[i].y,
+        boySprites[i].x,
+        boySprites[i].y,
         16,
         16,
         16 * i,
         0,
+        16,
+        16,
+      );
+    }
+    for ( let i = 0; i < 10; i++ ) {
+      this.ctx.drawImage(
+        this.src,
+        girlSprites[i].x,
+        girlSprites[i].y,
+        16,
+        16,
+        16 * i,
+        16,
         16,
         16,
       );

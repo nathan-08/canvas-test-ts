@@ -41,7 +41,8 @@ async function main(): Promise<void> {
   const outputController = new OutputController( fontTileset.img );
   const io = new IOController();
   const ac = new AnimationController();
-  const townMap = new TileMap2( () => [
+  const townMap = new TileMap2(
+    () => [
     getFadeOutAction( ctx, altCtx, renderFlags ),
     {
       frames: 1,
@@ -57,6 +58,9 @@ async function main(): Promise<void> {
     getFadeInAction( ctx, altCtx, renderFlags ),
   ],
   outputController,
+  p.canvas,
+  p,
+  ac,
   );
   const houseMap = new HouseMap(
     () => [

@@ -66,9 +66,6 @@ export function getFadeOutAction(
         }
         ctx.putImageData( imgData, 0, 0 );
       }
-      if ( n === 1 ) {
-        renderFlags.renderOverrideFlag = false;
-      }
       return true;
     },
   };
