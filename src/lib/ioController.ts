@@ -107,7 +107,9 @@ export class IOController {
             }
           ] );
         } else {
-          ac.startActionSequence( oc.createTextActionSequence( 'Hello world! Welcome to the internet.' ) );
+          ac.startActionSequence( oc.createTextActionSequence(
+            'here is a very LONG sentence. \nI wonder if the whole message can be displayed!'
+          ) );
         }
         break;
       case keys.s:

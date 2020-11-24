@@ -7,12 +7,15 @@ export function formatText( str: string ): ITextPage[] {
     let temp = '';
     for( let i = 0; i < words.length; i++ ) {
         const remainingSpace = MAX_LENGTH - temp.length;
-        if ( words[i].length < remainingSpace ) {
-            temp += words[i] + ' ';
+        if ( words[i][0] === '\n' || words[i].length > remainingSpace ) {
+            rows.push( temp.slice() );
+            if ( words[i][0] === '\n' )
+                temp = words[i].slice( 1 ) + ' ';
+            else
+                temp = words[i] + ' ';
         }
         else {
-            rows.push( temp.slice() );
-            temp = words[i] + ' ';
+            temp += words[i] + ' ';
         }
     }
     if ( temp.length ) {

@@ -69,7 +69,7 @@ export class OutputController {
           action: ( n: number ) => {
             if ( n === 3 ) {
               this.line2 += pages[i].line2[j];
-              if ( i < pages.length + 1 && j === pages[i].line2.length - 1 ) {
+              if ( i < pages.length - 1 && j === pages[i].line2.length - 1 ) {
                 this.showDownArrow = true;
                 return false;
               }
