@@ -17,7 +17,7 @@ export class OutputController {
       'style',
       `image-rendering: pixelated; width: ${this.src.width * 4}px; height: ${
         this.src.height * 4
-      }px;`,
+      }px; background: white;`,
     );
     // document.body.appendChild( this.canvas );
     this.ctx.drawImage( this.src, 0, 0 );
@@ -131,7 +131,7 @@ export class OutputController {
           8,
         );
       }
-      if ( msg[i] >= 'A' && msg[i] <= 'Z' ) {
+      else if ( msg[i] >= 'A' && msg[i] <= 'Z' ) {
         ctx.drawImage(
           this.canvas,
           8 * ( msg[i].charCodeAt( 0 ) - 65 ),
@@ -144,10 +144,153 @@ export class OutputController {
           8,
         );
       }
-      if ( msg[i] === '!' ) {
+      else if ( msg[i] >= '0' && msg[i] <= '9' ) {
+        ctx.drawImage(
+          this.canvas,
+          8 * ( msg[i].charCodeAt( 0 ) - 48 ),
+          8 * 2,
+          8,
+          8,
+          startx + 8 * i,
+          starty,
+          8,
+          8,
+        );
+      }
+      else if ( msg[i] === '(' ) {
+        ctx.drawImage(
+          this.canvas,
+          8 * 13,
+          8 * 2,
+          8,
+          8,
+          startx + 8 * i,
+          starty,
+          8,
+          8,
+        );
+      }
+      else if ( msg[i] === ')' ) {
+        ctx.drawImage(
+          this.canvas,
+          8 * 14,
+          8 * 2,
+          8,
+          8,
+          startx + 8 * i,
+          starty,
+          8,
+          8,
+        );
+      }
+      else if ( msg[i] === ':' ) {
+        ctx.drawImage(
+          this.canvas,
+          8 * 15,
+          8 * 2,
+          8,
+          8,
+          startx + 8 * i,
+          starty,
+          8,
+          8,
+        );
+      }
+      else if ( msg[i] === ';' ) {
+        ctx.drawImage(
+          this.canvas,
+          8 * 16,
+          8 * 2,
+          8,
+          8,
+          startx + 8 * i,
+          starty,
+          8,
+          8,
+        );
+      }
+      else if ( msg[i] === '[' ) {
+        ctx.drawImage(
+          this.canvas,
+          8 * 17,
+          8 * 2,
+          8,
+          8,
+          startx + 8 * i,
+          starty,
+          8,
+          8,
+        );
+      }
+      else if ( msg[i] === ']' ) {
+        ctx.drawImage(
+          this.canvas,
+          8 * 18,
+          8 * 2,
+          8,
+          8,
+          startx + 8 * i,
+          starty,
+          8,
+          8,
+        );
+      }
+      else if ( msg[i] === '?' ) {
+        ctx.drawImage(
+          this.canvas,
+          8 * 19,
+          8 * 2,
+          8,
+          8,
+          startx + 8 * i,
+          starty,
+          8,
+          8,
+        );
+      }
+      else if ( msg[i] === '!' ) {
         ctx.drawImage(
           this.canvas,
           8 * 20,
+          8 * 2,
+          8,
+          8,
+          startx + 8 * i,
+          starty,
+          8,
+          8,
+        );
+      }
+      else if ( msg[i] === '.' ) {
+        ctx.drawImage(
+          this.canvas,
+          8 * 21,
+          8 * 2,
+          8,
+          8,
+          startx + 8 * i,
+          starty,
+          8,
+          8,
+        );
+      }
+      else if ( msg[i] === ',' ) {
+        ctx.drawImage(
+          this.canvas,
+          8 * 22,
+          8 * 2,
+          8,
+          8,
+          startx + 8 * i,
+          starty,
+          8,
+          8,
+        );
+      }
+      else if ( msg[i] === '/' ) {
+        ctx.drawImage(
+          this.canvas,
+          8 * 23,
           8 * 2,
           8,
           8,
