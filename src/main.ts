@@ -14,10 +14,14 @@ import {
 import { IRenderFlags } from './types';
 import { getFadeInAction, getFadeOutAction } from './actions';
 import { colorscheme } from './colorscheme';
+import { version } from '../package.json';
 
 window.onload = main;
 
 async function main(): Promise<void> {
+  const htmlText = document.getElementById( 'title' );
+  const setHTMLText = ( msg: string ) => ( htmlText.textContent = msg );
+  setHTMLText( `version ${version}` );
   const canvas = document.createElement( 'canvas' );
   canvas.width = 16 * 10;
   canvas.height = 16 * 9;
@@ -37,34 +41,38 @@ async function main(): Promise<void> {
   const outputController = new OutputController( fontTileset.img );
   const io = new IOController();
   const ac = new AnimationController();
-  const tileMap = new TileMap2( () => ( {
-    ...getFadeOutAction( ctx, altCtx, renderFlags ),
-    onComplete: () => {
-      mc.setMapIndex( 1 );
-      p.tilePos.x = 4;
-      p.tilePos.y = 7;
-      mc.x = 0;
-      mc.y = -16 * 3;
-      ac.startAnimation( {
-        ...getFadeInAction( ctx, altCtx, renderFlags ),
-      } );
-    }
-  } ) );
-  const houseMap = new HouseMap( () => ( {
-    ...getFadeOutAction( ctx, altCtx, renderFlags ),
-    onComplete: () => {
-      mc.setMapIndex( 0 ); // to outside
-      // adjust player and map positions
-      p.tilePos.x = 10;
-      p.tilePos.y = 1;
-      mc.x = -16 * 6;
-      mc.y = 16 * 3;
-      ac.startAnimation( {
-        ...getFadeInAction( ctx, altCtx, renderFlags ),
-      } );
+  const townMap = new TileMap2( () => [
+    getFadeOutAction( ctx, altCtx, renderFlags ),
+    {
+      frames: 1,
+      action: () => {
+        mc.setMapIndex( 1 );
+        p.tilePos.x = 4;
+        p.tilePos.y = 7;
+        mc.x = 0;
+        mc.y = -16 * 3;
+        return true;
+      },
     },
-  } ) );
-  const mc = new MapController( [tileMap, houseMap], 1, tileset.img );
+    getFadeInAction( ctx, altCtx, renderFlags ),
+  ] );
+  const houseMap = new HouseMap( () => [
+    getFadeOutAction( ctx, altCtx, renderFlags ),
+    {
+      frames: 1,
+      action: () => {
+        mc.setMapIndex( 0 ); // to outside
+        // adjust player and map positions
+        p.tilePos.x = 10;
+        p.tilePos.y = 5;
+        mc.x = -16 * 6;
+        mc.y = -16 * 1;
+        return true;
+      },
+    },
+    getFadeInAction( ctx, altCtx, renderFlags ),
+  ] );
+  const mc = new MapController( [townMap, houseMap], 1, tileset.img );
   const renderFlags: IRenderFlags = {
     renderOverrideFlag: false,
     altCanvas: false,
@@ -80,7 +88,7 @@ async function main(): Promise<void> {
     if ( ac.ready ) {
       io.handleInput( p, mc, ac, outputController, ctx, altCtx, renderFlags );
     }
-    ac.step();
+    ac._step( io.getKeys() );
 
     if ( !renderFlags.renderOverrideFlag ) {
       const _ctx = renderFlags.altCanvas ? altCtx : ctx;

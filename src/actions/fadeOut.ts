@@ -8,11 +8,12 @@ export function getFadeOutAction(
   altCtx: CanvasRenderingContext2D,
   renderFlags: IRenderFlags,
 ): IAnimation {
-  const imgData = ctx.getImageData( 0, 0, ctx.canvas.width, ctx.canvas.height );
+  let imgData: ImageData;
   return {
     frames: 30,
     action: ( n: number ) => {
       if ( n === 30 ) {
+        imgData = ctx.getImageData( 0, 0, ctx.canvas.width, ctx.canvas.height );
         renderFlags.renderOverrideFlag = true; // disable normal renderer while animation is running
         for ( let i = 0; i < imgData.data.length; i += 4 ) {
           switch ( imgData.data[i] ) {
@@ -65,7 +66,10 @@ export function getFadeOutAction(
         }
         ctx.putImageData( imgData, 0, 0 );
       }
+      if ( n === 1 ) {
+        renderFlags.renderOverrideFlag = false;
+      }
+      return true;
     },
-    onComplete: () => null,
   };
 }

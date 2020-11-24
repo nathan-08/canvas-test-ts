@@ -1,7 +1,11 @@
 import { applyColorPallette, formatText } from '.';
+import { IAnimation, IKeys, ITextPage } from '../types';
 
 export class OutputController {
   public showDialog = false;
+  private line1 = '';
+  private line2 = '';
+  private showDownArrow = false;
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
   constructor( private src: HTMLImageElement ) {
@@ -26,19 +30,86 @@ export class OutputController {
     applyColorPallette( imgData );
     this.ctx.putImageData( imgData, 0, 0 );
   }
+  public createTextActionSequence( msg: string ): IAnimation[] {
+    const pages = formatText( msg );
+    const actions: IAnimation[] = [
+      {
+        frames: 1,
+        action: () => {
+          this.line1 = '';
+          this.line2 = '';
+          this.showDownArrow = false;
+          return true;
+        },
+      },
+      {
+        frames: 1,
+        action: () => {
+          this.showDialog = true;
+          return true;
+        },
+      },
+    ];
+    for ( let i = 0; i < pages.length; i++ ) {
+      for ( let j = 0; j < pages[i].line1.length; j++ ) {
+        const animation = {
+          frames: 3,
+          action: ( n: number ) => {
+            if ( n === 3 ) {
+              this.line1 += pages[i].line1[j];
+            }
+            return true;
+          },
+        };
+        actions.push( animation );
+      }
+      for ( let j = 0; j < pages[i].line2.length; j++ ) {
+        const animation = {
+          frames: 3,
+          action: ( n: number ) => {
+            if ( n === 3 ) {
+              this.line2 += pages[i].line2[j];
+              if ( i < pages.length + 1 && j === pages[i].line2.length - 1 ) {
+                this.showDownArrow = true;
+                return false;
+              }
+            }
+            return true;
+          },
+        };
+        actions.push( animation );
+      }
+      actions.push( {
+        frames: -1,
+        action: ( _: number, keys: IKeys ) => keys.a,
+      } );
+      actions.push( {
+        frames: 1,
+        action: () => {
+          this.showDownArrow = false;
+          this.line1 = '';
+          this.line2 = '';
+          return true;
+        }
+      } );
+    }
+
+    return actions;
+  }
   public testRender( ctx: CanvasRenderingContext2D ): void {
     if ( !this.showDialog ) return;
     this.drawBox( ctx );
-    this.renderText( ctx, 'hello world how ', 'are you? ' );
-    this.renderDownArrow( ctx );
+    this.renderText( ctx, this.line1, this.line2 );
+    if ( this.showDownArrow )
+      this.renderDownArrow( ctx );
   }
   private renderText(
     ctx: CanvasRenderingContext2D,
     line1: string,
     line2?: string,
   ) {
-    this.renderLine( ctx, line1, 8, ctx.canvas.height - 8 * 4 );
-    if ( line2 ) this.renderLine( ctx, line2, 8, ctx.canvas.height - 8 * 3 );
+    this.renderLine( ctx, line1, 8, ctx.canvas.height - 8 * 4.5 );
+    if ( line2 ) this.renderLine( ctx, line2, 8, ctx.canvas.height - 8 * 2.5 );
   }
   private renderLine(
     ctx: CanvasRenderingContext2D,

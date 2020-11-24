@@ -70,7 +70,7 @@ export class MapController implements ITileMap {
   public set x( x: number ) { this.currentMap.x = x; }
   public get y(): number { return this.currentMap.y; }
   public set y( y: number ) { this.currentMap.y = y; }
-  public checkTile( x: number, y: number ): { walkable: boolean, action: ()=>IAnimation } {
+  public checkTile( x: number, y: number ): { walkable: boolean, action: ()=>IAnimation[] } {
     return this.currentMap.checkTile( x, y );
   }
   public render( ctx: CanvasRenderingContext2D ): void {
@@ -87,7 +87,7 @@ abstract class BaseMap implements ITileMap {
   abstract w16: number;
   abstract h16: number;
   protected abstract walkableMap: number[][];
-  protected abstract actionMap: ( ()=>IAnimation )[][];
+  protected abstract actionMap: ( ()=>IAnimation[] )[][];
   abstract legsUnderGrass( p: Player ): boolean;
   abstract render( ctx: CanvasRenderingContext2D, src?: HTMLCanvasElement ): void;
   public checkTile( x: number, y: number ) {
@@ -108,7 +108,7 @@ abstract class BaseMap implements ITileMap {
 }
 export class HouseMap extends BaseMap implements ITileMap {
   constructor(
-    private doorAction: ()=>IAnimation,
+    private doorAction: ()=>IAnimation[],
   ) {
     super();
   }
@@ -118,7 +118,7 @@ export class HouseMap extends BaseMap implements ITileMap {
   public h16 = 8;
   protected walkableMap = [
     [ 1, 1, 1, 1, 1, 1, 1, 1, ],
-    [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+    [ 1, 1, 0, 0, 0, 0, 0, 0, ],
     [ 0, 0, 0, 0, 0, 0, 0, 1, ],
     [ 0, 0, 1, 0, 0, 0, 0, 1, ],
     [ 0, 0, 1, 0, 0, 0, 0, 0, ],
@@ -126,7 +126,7 @@ export class HouseMap extends BaseMap implements ITileMap {
     [ 1, 0, 0, 0, 0, 0, 0, 1, ],
     [ 1, 0, 0, 0, 0, 0, 0, 1, ],
   ];
-  protected actionMap: ( () => IAnimation )[][] = [
+  protected actionMap: ( () => IAnimation[] )[][] = [
     [ null, null, null, null, null, null, null, null ],
     [ null, null, null, null, null, null, null, null ],
     [ null, null, null, null, null, null, null, null ],
@@ -138,10 +138,10 @@ export class HouseMap extends BaseMap implements ITileMap {
     [ null, null, null, null, this.doorAction, this.doorAction, null, null ],
   ];
   private tileAtlas = [
-    [ 1, 1, 1, 1, 1, 1, 1, 1,  1, 1, 1, 1, 1, 1,12,13 ],
-    [ 1, 1, 1, 1, 1, 1, 1, 1,  1, 1, 1, 1, 1, 1,14,15 ],
-    [ 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0 ],
-    [ 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0 ],
+    [30,31,30,31, 1, 1, 1, 1,  1, 1,12,13, 1, 1,12,13 ],
+    [32,33,32,33, 1, 1, 1, 1,  1, 1,14,15, 1, 1,14,15 ],
+    [34,35,34,35, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0 ],
+    [36,37,36,37, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0 ],
     [ 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,24,25 ],
     [ 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,26,27 ],
     [ 0, 0, 0, 0, 4, 5, 0, 0,  0, 0, 0, 0, 0, 0,26,27 ],
@@ -187,6 +187,14 @@ export class HouseMap extends BaseMap implements ITileMap {
     27: new Point( 8*14, 8*3 ), // bed mid
     28: new Point( 8*15, 8*3 ), // bed bottom
     29: new Point( 8*15, 8*2 ), // bed bottom
+    30: new Point( 8*6, 8*2 ), // bookshelf top left
+    31: new Point( 8*9, 8*2 ), // bookshelf top right
+    32: new Point( 8*0, 8*3 ), // bookshelf
+    33: new Point( 8*1, 8*3 ), // bookshelf
+    34: new Point( 8*2, 8*2 ), // bookshelf
+    35: new Point( 8*3, 8*2 ), // bookshelf
+    36: new Point( 8*2, 8*3 ), // bookshelf
+    37: new Point( 8*3, 8*3 ), // bookshelf
   };
   public render( ctx: CanvasRenderingContext2D, src: HTMLCanvasElement ): void {
     const srcYOffset = 16 * 3; // tileset for this room beings at 16 * 3 (y)
@@ -221,14 +229,18 @@ export class TileMap2 extends BaseMap implements ITileMap {
   private renderCount = 0;
   private animationStage = 0;
   public w16 = 12;
-  public h16 = 8;
+  public h16 = 12;
   public x = 0;
   public y = 0;
   private w = 24;
-  private h = 16;
-  protected actionMap: ( () => IAnimation )[][] = [
+  private h = 24;
+  protected actionMap: ( () => IAnimation[] )[][] = [
     [ null, null, null, null, null, null, null, null, null, null, null, null ],
-    [ null, null, null, null, null, null, null, null, null, null, this.doorAction, null ],
+    [ null, null, null, null, null, null, null, null, null, null, null, null ],
+    [ null, null, null, null, null, null, null, null, null, null, null, null ],
+    [ null, null, null, null, null, null, null, null, null, null, null, null ],
+    [ null, null, null, null, null, null, null, null, null, null, null, null ],
+    [ null, null, this.doorAction, null, null, null, null, null, null, null, this.doorAction, null ],
     [ null, null, null, null, null, null, null, null, null, null, null, null ],
     [ null, null, null, null, null, null, null, null, null, null, null, null ],
     [ null, null, null, null, null, null, null, null, null, null, null, null ],
@@ -237,32 +249,45 @@ export class TileMap2 extends BaseMap implements ITileMap {
     [ null, null, null, null, null, null, null, null, null, null, null, null ],
   ];
   protected walkableMap = [
-    [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ],
-    [ 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1 ],
-    [ 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1 ],
-    [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 ],
-    [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 ],
-    [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 ],
-    [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 ],
-    [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 ],
+    [ 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0 ],
+    [ 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0 ],
+    [ 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0 ],
+    [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+    [ 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1 ],
+    [ 1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1 ],
+    [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+    [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+    [ 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 ],
+    [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+    [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+    [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
   ];
   private tileAtlas2 = [
-    [ 8,11,14,14,14,14,24,26, 2, 2, 2, 2, 2, 2, 2, 2,  8,11,14,14,14,14,24,26],
-    [ 9,12,15,15,15,15,25,27, 6, 7, 7, 7, 7, 7, 7, 3,  9,12,15,15,15,15,25,27],
-    [10,13,16,16,17,18,28,29, 6, 7, 7, 7, 7, 7, 7, 3, 10,13,16,16,17,18,28,29],
-    [21,23,23,23,19,20,23,22, 6, 7, 7, 7, 7, 7, 7, 3, 21,23,23,23,19,20,23,22],
-    [ 5, 5, 5, 5, 5, 5, 5, 5, 6, 7, 7, 7, 7, 7, 7, 3,  1, 0, 1, 0, 5, 5,30,31],
-    [ 5, 4, 5, 5, 5, 4, 5, 5, 6, 7, 7, 7, 7, 7, 7, 3,  0, 1, 0, 1, 5, 4,32,33],
-    [ 5, 5, 5, 5, 5, 5, 5, 5, 4, 4, 4, 4, 4, 4, 4, 4,  5, 5, 5, 5, 5, 5,30,31],
-    [ 5, 5, 5, 4, 5, 5, 5, 4, 4, 4, 4, 4, 4, 4, 4, 4,  5, 5, 5, 4, 5, 5,32,33],
-    [34,34,34,34,34,34,34,34, 4, 4, 1, 0, 1, 0, 4, 4, 34,34,34,34, 5, 5,30,31],
-    [34,34,34,34,34,34,34,34, 4, 4, 0, 1, 0, 1, 4, 4, 34,34,34,34, 5, 4,32,33],
-    [34,34,34,34,34,34,34,34, 4, 4, 1, 0, 1, 0, 4, 4, 34,34,34,34, 5, 5,30,31],
-    [34,34,34,34,34,34,34,34, 4, 4, 0, 1, 0, 1, 4, 4, 34,34,34,34, 5, 5,32,33],
-    [34,34,34,34,34,34,34,34, 4, 4, 1, 0, 1, 0, 4, 4, 34,34,34,34, 5, 5,30,31],
-    [34,34,34,34,34,34,34,34, 4, 4, 0, 1, 0, 1, 4, 4, 34,34,34,34, 5, 4,32,33],
-    [34,34,34,34,34,34,34,34, 4, 4, 4, 4, 4, 4, 4, 4, 34,34,34,34, 5, 5,30,31],
-    [34,34,34,34,34,34,34,34, 4, 4, 4, 4, 4, 4, 4, 4, 34,34,34,34, 5, 5,32,33],
+    [ 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 5, 5, 5,  5, 5, 5, 5, 5, 5, 5, 5],
+    [ 6, 7, 7, 7, 7, 7, 7, 7, 7, 3, 5, 5, 5, 4, 5, 5,  5, 4, 5, 5, 5, 4, 5, 5],
+    [ 6, 7, 7, 7, 7, 7, 7, 7, 7, 3, 5, 5, 5, 5, 5, 5,  5, 5, 5, 5, 5, 5, 5, 5],
+    [ 6, 7, 7, 7, 7, 7, 7, 7, 7, 3, 5, 4, 5, 5, 5, 4,  5, 5, 5, 4, 5, 5, 5, 4],
+    [ 6, 7, 7, 7, 7, 7, 7, 7, 7, 3, 5, 5, 5, 5, 5, 5,  5, 5, 5, 5, 5, 5, 5, 5],
+    [ 6, 7, 7, 7, 7, 7, 7, 7, 7, 3, 5, 5, 5, 4, 5, 5,  5, 4, 5, 5, 5, 4, 5, 5],
+    [ 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,  5, 5, 5, 5, 5, 5, 5, 5],
+    [ 5, 5, 5, 4, 5, 5, 5, 4, 5, 5, 5, 4, 5, 5, 5, 4,  5, 5, 5, 4, 5, 5, 5, 4],
+
+    [ 8,11,14,14,14,14,24,26, 5, 5, 5, 5, 4, 4, 4, 4,  8,11,14,14,14,14,24,26],
+    [ 9,12,15,15,15,15,25,27, 5, 4, 5, 5, 4, 4, 4, 4,  9,12,15,15,15,15,25,27],
+    [10,13,16,16,17,18,28,29, 5, 5, 5, 5, 4, 4,37,38, 10,13,16,16,17,18,28,29],
+    [21,23,23,23,19,20,23,22, 5, 5, 5, 4, 4, 4,39,40, 21,23,23,23,19,20,23,22],
+    [ 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,  1, 0, 1, 0, 5, 5, 5, 5],
+    [ 5, 4, 5, 5, 5, 4, 5, 5, 5, 4, 5, 5, 5, 4, 5, 5,  0, 1, 0, 1, 5, 4, 5, 5],
+    [ 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,  5, 5, 5, 5, 5, 5, 5, 5],
+    [ 5, 5, 5, 4, 5, 5, 5, 4, 5, 5, 5, 4, 5, 5, 5, 4,  5, 5, 5, 4, 5, 5, 5, 4],
+    [35,35,35,35,35,35,37,38, 4, 4, 1, 0, 1, 0, 4, 4, 34,34,34,34, 5, 5, 5, 5],
+    [36,36,36,36,36,36,39,40, 4, 4, 0, 1, 0, 1, 4, 4, 34,34,34,34, 5, 4, 5, 5],
+    [ 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 1, 0, 1, 0, 4, 4, 34,34,34,34, 5, 5, 5, 5],
+    [ 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 0, 1, 0, 1, 4, 4, 34,34,34,34, 5, 5, 5, 4],
+    [ 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 1, 0, 1, 0, 4, 4, 34,34,34,34, 5, 5, 5, 5],
+    [ 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 0, 1, 0, 1, 4, 4, 34,34,34,34, 5, 4, 5, 5],
+    [ 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 34,34,34,34, 5, 5, 5, 5],
+    [ 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 34,34,34,34, 5, 5, 5, 4],
   ];
   private tileHash: { [index: number]: Point | { [index:number]: Point } } = {
     0: new Point( 8*12, 8*2 ), // rough grass
@@ -321,8 +346,14 @@ export class TileMap2 extends BaseMap implements ITileMap {
     32: new Point( 8*0, 8*5 ), // tree
     33: new Point( 8*1, 8*5 ), // tree
     34: new Point( 8*2, 8*5 ), // tall grass!
+    35: new Point( 8*14, 8*0 ), // fence top
+    36: new Point( 8*5, 8*5 ), // fence bottom
+    37: new Point( 8*6, 8*4 ), // sign top
+    38: new Point( 8*7, 8*4 ), // sign top
+    39: new Point( 8*6, 8*5 ), // sign bottom
+    40: new Point( 8*7, 8*5 ), // sign bottom
   };
-  constructor( private doorAction: () => IAnimation ) {
+  constructor( private doorAction: () => IAnimation[] ) {
     super();
   }
   public render( ctx: CanvasRenderingContext2D, src: HTMLCanvasElement ): void {

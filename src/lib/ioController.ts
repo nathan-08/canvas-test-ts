@@ -1,17 +1,8 @@
 import { Direction, Player, AnimationController, formatText } from '.';
-import { ITileMap, IRenderFlags, IAnimation } from '../types';
+import { ITileMap, IRenderFlags, IAnimation, IKeys } from '../types';
 import { OutputController } from './outputController';
-import { getFadeInAction, getFadeOutAction } from '../actions';
+import { getFadeInAction } from '../actions';
 
-interface IKeys {
-  up: boolean;
-  down: boolean;
-  left: boolean;
-  right: boolean;
-  a: boolean;
-  s: boolean;
-  d: boolean;
-}
 export class IOController {
   // inherit event listeners from base class
 
@@ -36,27 +27,55 @@ export class IOController {
 
   private handleKeyDown( e: KeyboardEvent ): void {
     switch ( e.key ) {
-      case 'ArrowUp': this.keys.up = true; break;
-      case 'ArrowDown': this.keys.down = true; break;
-      case 'ArrowLeft': this.keys.left = true; break;
-      case 'ArrowRight': this.keys.right = true; break;
+      case 'ArrowUp':
+        this.keys.up = true;
+        break;
+      case 'ArrowDown':
+        this.keys.down = true;
+        break;
+      case 'ArrowLeft':
+        this.keys.left = true;
+        break;
+      case 'ArrowRight':
+        this.keys.right = true;
+        break;
 
-      case 'a': this.keys.a = true; break;
-      case 's': this.keys.s = true; break;
-      case 'd': this.keys.d = true; break;
+      case 'a':
+        this.keys.a = true;
+        break;
+      case 's':
+        this.keys.s = true;
+        break;
+      case 'd':
+        this.keys.d = true;
+        break;
     }
   }
 
   private handleKeyUp( e: KeyboardEvent ): void {
     switch ( e.key ) {
-      case 'ArrowUp': this.keys.up = false; break;
-      case 'ArrowDown': this.keys.down = false; break;
-      case 'ArrowLeft': this.keys.left = false; break;
-      case 'ArrowRight': this.keys.right = false; break;
+      case 'ArrowUp':
+        this.keys.up = false;
+        break;
+      case 'ArrowDown':
+        this.keys.down = false;
+        break;
+      case 'ArrowLeft':
+        this.keys.left = false;
+        break;
+      case 'ArrowRight':
+        this.keys.right = false;
+        break;
 
-      case 'a': this.keys.a = false; break;
-      case 's': this.keys.s = false; break;
-      case 'd': this.keys.d = false; break;
+      case 'a':
+        this.keys.a = false;
+        break;
+      case 's':
+        this.keys.s = false;
+        break;
+      case 'd':
+        this.keys.d = false;
+        break;
     }
   }
 
@@ -67,37 +86,50 @@ export class IOController {
     oc: OutputController,
     ctx: CanvasRenderingContext2D,
     altCtx: CanvasRenderingContext2D,
-    renderFlags: IRenderFlags ): void {
+    renderFlags: IRenderFlags,
+  ): void {
     p.isMoving = false;
     const { keys } = this;
-    let tileData, walkable, tileAction: ()=>IAnimation;
-    switch ( true ) {
+    let tileData, walkable, tileAction: () => IAnimation[];
+    let actionSequence: IAnimation[] = [];
+    switch ( true ) { // loop over input keys
       case keys.a:
-        ac.startAnimation( {
-          action: ( n: number ) => {
-            if ( n === 8 )
-              oc.showDialog = !oc.showDialog;
-          },
-          frames: 8
-        } );
+        if ( oc.showDialog ) {
+          ac.startActionSequence( [
+            {
+              frames: 8,
+              action: ( n: number ) => {
+                if ( n === 8 ) {
+                  oc.showDialog = false;
+                }
+                return true;
+              }
+            }
+          ] );
+        } else {
+          ac.startActionSequence( oc.createTextActionSequence( 'Hello world! Welcome to the internet.' ) );
+        }
         break;
       case keys.s:
-        ac.startAnimation( {
-          frames: 8,
-          action: ( n: number ) => {
-            if ( n === 8 ) {
-              const res = formatText( 'hello world how are you?' );
-              console.log( res );
-            }
+        ac.startActionSequence( [
+          {
+            frames: 8,
+            action: ( n: number ) => {
+              if ( n === 8 ) {
+                const res = formatText( 'hello world how are you?' );
+                console.log( res );
+              }
+              return true;
+            },
           },
-        } );
+        ] );
         break;
       case keys.d:
-        ac.startAnimation( getFadeInAction( ctx, altCtx, renderFlags ) );
+        ac.startActionSequence( [getFadeInAction( ctx, altCtx, renderFlags )] );
         break;
       case keys.up:
         p.dir = Direction.up;
-        
+
         tileData = tileMap.checkTile( p.tilePos.x, p.tilePos.y - 1 );
         walkable = tileData.walkable;
         tileAction = tileData.action;
@@ -105,155 +137,169 @@ export class IOController {
           p.tilePos.y--;
           p.isMoving = true;
         }
-
-        ac.startAnimation( {
-          action: () => {
-            if ( p.isMoving ) tileMap.y++;
-            p.frameIndex = p.dir;
-          },
-          frames: 8,
-          onComplete: () => {
-            if ( p.isMoving || keys.up ) {
-              ac.startAnimation( {
-                action: () => {
-                  if ( p.isMoving ) tileMap.y++;
-                  p.frameIndex = p.step ? 5 : 3;
-                },
-                frames: 8,
-                onComplete: () => {
-                  p.frameIndex = p.dir;
-                  p.step = !p.step;
-                  // start tile-triggered actions
-                  if ( tileAction ) {
-                    ac.startAnimation( tileAction() );
-                  }
-                },
-              } );
-            }
-          },
-        } );
-
-        break;
-        case keys.down: 
-          p.dir = Direction.down;
-          tileData = tileMap.checkTile( p.tilePos.x, p.tilePos.y + 1 );
-          walkable = tileData.walkable;
-          tileAction = tileData.action;
-          if ( walkable ) {
-            p.tilePos.y++;
-            p.isMoving = true;
-          }
-
-          if ( tileAction ) {
-            p.frameIndex = p.dir;
-            ac.startAnimation( {
-              frames: 4,
-              action: () => null,
-              onComplete: () => {
-                ac.startAnimation( tileAction() );
-              }
-            } );
-          } else
+        actionSequence = [
           {
-            ac.startAnimation( {
+            frames: 8,
+            action: () => {
+              if ( p.isMoving ) tileMap.y++;
+              p.frameIndex = p.dir;
+              return true;
+            },
+          },
+          {
+            frames: 8,
+            action: ( n: number ) => {
+              if ( n === 8 ) {
+                if ( !( p.isMoving || keys.up ) ) {
+                  return false;
+                }
+              }
+              if ( p.isMoving ) tileMap.y++;
+              p.frameIndex = p.step ? 5 : 3;
+              if ( n === 1 ) {
+                p.frameIndex = p.dir;
+                p.step = !p.step;
+              }
+              return true;
+            },
+          },
+        ];
+        if ( tileAction ) {
+          actionSequence.push( ...tileAction() );
+        }
+        ac.startActionSequence( actionSequence );
+        break;
+      case keys.down:
+        p.dir = Direction.down;
+        tileData = tileMap.checkTile( p.tilePos.x, p.tilePos.y + 1 );
+        walkable = tileData.walkable;
+        tileAction = tileData.action;
+        if ( walkable ) {
+          p.tilePos.y++;
+          p.isMoving = true;
+        }
+
+        if ( tileAction ) {
+          p.frameIndex = p.dir;
+          ac.startActionSequence( [
+            {
+              frames: 4,
+              action: () => true,
+            },
+            ...tileAction(),
+          ] );
+        } else {
+          actionSequence = [
+            {
+              frames: 8,
               action: () => {
                 if ( p.isMoving ) tileMap.y--;
                 p.frameIndex = p.dir;
+                return true;
               },
+            },
+            {
               frames: 8,
-              onComplete: () => {
-                if ( p.isMoving || keys.down ) {
-                  ac.startAnimation( {
-                    action: () => {
-                      if ( p.isMoving ) tileMap.y--;
-                      p.frameIndex = p.step ? 0 : 2;
-                    },
-                    frames: 8,
-                    onComplete: () => {
-                      p.frameIndex = p.dir;
-                      p.step = !p.step;
-                      if ( tileAction ) {
-                        ac.startAnimation( tileAction() );
-                      }
-                    },
-                  } );
+              action: ( n: number ) => {
+                if ( n === 8 ) {
+                  if ( !( p.isMoving || keys.down ) ) {
+                    return false;
+                  }
                 }
-              }
-            } );
-          }
+                if ( p.isMoving ) tileMap.y--;
+                p.frameIndex = p.step ? 0 : 2;
+                if ( n === 1 ) {
+                  p.frameIndex = p.dir;
+                  p.step = !p.step;
+                }
+                return true;
+              },
+            },
+          ];
+          ac.startActionSequence( actionSequence );
+        }
         break;
-        case keys.left: 
-          p.dir = Direction.left;
-          tileData = tileMap.checkTile( p.tilePos.x - 1, p.tilePos.y );
-          walkable = tileData.walkable;
-          tileAction = tileData.action;
-          if ( walkable ) {
-            p.tilePos.x--;
-            p.isMoving = true;
-          }
+      case keys.left:
+        p.dir = Direction.left;
+        tileData = tileMap.checkTile( p.tilePos.x - 1, p.tilePos.y );
+        walkable = tileData.walkable;
+        tileAction = tileData.action;
+        if ( walkable ) {
+          p.tilePos.x--;
+          p.isMoving = true;
+        }
 
-          ac.startAnimation( {
+        actionSequence = [
+          {
+            frames: 8,
             action: () => {
               if ( p.isMoving ) tileMap.x++;
               p.frameIndex = p.dir;
+              return true;
             },
+          },
+          {
             frames: 8,
-            onComplete: () => {
-              if ( p.isMoving || keys.down ) {
-                ac.startAnimation( {
-                  action: () => {
-                    if ( p.isMoving ) tileMap.x++;
-                    p.frameIndex = 7;
-                  },
-                  frames: 8,
-                  onComplete: () => {
-                    p.frameIndex = p.dir;
-                    if ( tileAction ) {
-                      ac.startAnimation( tileAction() );
-                    }
-                  }
-                } );
+            action: ( n: number ) => {
+              if ( n === 8 ) {
+                if ( !( p.isMoving || keys.left ) ) {
+                  return false;
+                }
               }
-            }
-          } );
-          break;
-        case keys.right: 
-          p.dir = Direction.right;
-          tileData = tileMap.checkTile( p.tilePos.x + 1, p.tilePos.y );
-          walkable = tileData.walkable;
-          tileAction = tileData.action;
-          if ( walkable ) {
-            p.tilePos.x++;
-            p.isMoving = true;
-          }
+              if ( p.isMoving ) tileMap.x++;
+              p.frameIndex = 7;
+              if ( n === 1 ) {
+                p.frameIndex = p.dir;
+              }
+            },
+          },
+        ];
+        if ( tileAction ) {
+          actionSequence.push( ...tileAction() );
+        }
+        ac.startActionSequence( actionSequence );
+        break;
+      case keys.right:
+        p.dir = Direction.right;
+        tileData = tileMap.checkTile( p.tilePos.x + 1, p.tilePos.y );
+        walkable = tileData.walkable;
+        tileAction = tileData.action;
+        if ( walkable ) {
+          p.tilePos.x++;
+          p.isMoving = true;
+        }
 
-          ac.startAnimation( {
+        actionSequence = [
+          {
+            frames: 8,
             action: () => {
               if ( p.isMoving ) tileMap.x--;
               p.frameIndex = p.dir;
+              return true;
             },
+          },
+          {
             frames: 8,
-            onComplete: () => {
-              if ( p.isMoving || keys.down ) {
-                ac.startAnimation( {
-                  action: () => {
-                    if ( p.isMoving ) tileMap.x--;
-                    p.frameIndex = 9;
-                  },
-                  frames: 8,
-                  onComplete: () => {
-                    p.frameIndex = p.dir;
-                    if ( tileAction ) {
-                      ac.startAnimation( tileAction() );
-                    }
-                  }
-                } );
+            action: ( n: number ) => {
+              if ( n === 8 ) {
+                if ( !( p.isMoving || keys.right ) ) {
+                  return false;
+                }
               }
-            }
-          } );
-          break;
+              if ( p.isMoving ) tileMap.x--;
+              p.frameIndex = 9;
+              if ( n === 1 ) {
+                p.frameIndex = p.dir;
+              }
+            },
+          },
+        ];
+        if ( tileAction ) {
+          actionSequence.push( ...tileAction() );
+        }
+        ac.startActionSequence( actionSequence );
+        break;
     }
-    p.frameIndex = p.dir;
     return;
   }
 }

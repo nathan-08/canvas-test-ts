@@ -73,7 +73,7 @@ export function getFadeInAction(
         renderFlags.renderOverrideFlag = false;
         renderFlags.altCanvas = false;
       }
+      return true;
     },
-    onComplete: () => null,
   };
 }

@@ -20,7 +20,7 @@ export class Player {
   public dir: Direction = Direction.down;
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
-  public frameIndex = 0;
+  public frameIndex = 1;
 
   constructor(
     public tilePos: Point,
