@@ -94,22 +94,9 @@ export class IOController {
     let actionSequence: IAnimation[] = [];
     switch ( true ) { // loop over input keys
       case keys.a:
-        if ( oc.showDialog ) {
-          ac.startActionSequence( [
-            {
-              frames: 8,
-              action: ( n: number ) => {
-                if ( n === 8 ) {
-                  oc.showDialog = false;
-                }
-                return true;
-              }
-            }
-          ] );
-        } else {
-          ac.startActionSequence( oc.createTextActionSequence(
-            `The time is: \n${new Date().toLocaleTimeString()}`
-          ) );
+        const actions = tileMap.getInteractiveTileAction( p );
+        if ( actions ) {
+          ac.startActionSequence( actions );
         }
         break;
       case keys.s:

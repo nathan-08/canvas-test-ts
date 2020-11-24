@@ -93,6 +93,15 @@ export class OutputController {
         }
       } );
     }
+    actions.push( {
+      frames: 8,
+      action: ( n: number ) => {
+        if ( n === 8 ) {
+          this.showDialog = false;
+        }
+        return true;
+      }
+    } );
 
     return actions;
   }
@@ -291,6 +300,19 @@ export class OutputController {
         ctx.drawImage(
           this.canvas,
           8 * 23,
+          8 * 2,
+          8,
+          8,
+          startx + 8 * i,
+          starty,
+          8,
+          8,
+        );
+      }
+      else if ( msg[i] === "'" ) {
+        ctx.drawImage(
+          this.canvas,
+          8 * 24,
           8 * 2,
           8,
           8,

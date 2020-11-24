@@ -1,6 +1,7 @@
 // nature animations start: (231, 47)
-import { Point, Player, applyColorPallette } from '.';
+import { Point, Player, applyColorPallette, Direction } from '.';
 import { ITileMap, IAnimation } from '../types';
+import { OutputController } from './outputController';
 
 export class MapController implements ITileMap {
   private canvas: HTMLCanvasElement;
@@ -62,6 +63,9 @@ export class MapController implements ITileMap {
     this.ctx.putImageData( imgData, 0, 0 );
 
   }
+  public getInteractiveTileAction( p: Player ): IAnimation[] | null {
+    return this.currentMap.getInteractiveTileAction( p );
+  }
   private get currentMap() { return this.maps[this.mapIndex]; }
   public setMapIndex( x: number ):void { this.mapIndex = x; }
   public get w16(): number { return this.currentMap.w16; }
@@ -88,6 +92,35 @@ abstract class BaseMap implements ITileMap {
   abstract h16: number;
   protected abstract walkableMap: number[][];
   protected abstract actionMap: ( ()=>IAnimation[] )[][];
+  protected abstract interactiveTiles: { [x: number]: { [y: number]: ( d: Direction ) => IAnimation[] }};
+  public getInteractiveTileAction( p: Player ): IAnimation[] | null {
+    let x, y;
+    switch ( p.dir ) {
+      case Direction.up:
+        x = p.tilePos.x;
+        y = p.tilePos.y-1;
+        break;
+      case Direction.down:
+        x = p.tilePos.x;
+        y = p.tilePos.y+1;
+        break;
+      case Direction.left:
+        x = p.tilePos.x-1;
+        y = p.tilePos.y;
+        break;
+      case Direction.right:
+        x = p.tilePos.x+1;
+        y = p.tilePos.y;
+        break;
+    }
+    let actions: IAnimation[] = null
+    try {
+      const f = this.interactiveTiles[x][y];
+      actions = f( p.dir );
+    }
+    catch {}
+    return actions;
+  }
   abstract legsUnderGrass( p: Player ): boolean;
   abstract render( ctx: CanvasRenderingContext2D, src?: HTMLCanvasElement ): void;
   public checkTile( x: number, y: number ) {
@@ -109,6 +142,7 @@ abstract class BaseMap implements ITileMap {
 export class HouseMap extends BaseMap implements ITileMap {
   constructor(
     private doorAction: ()=>IAnimation[],
+    private oc: OutputController,
   ) {
     super();
   }
@@ -156,6 +190,30 @@ export class HouseMap extends BaseMap implements ITileMap {
     [18,19, 0, 0, 0, 0, 0, 0,  2, 2, 2, 2, 0, 0,18,19 ],
     [16,17, 0, 0, 0, 0, 0, 0,  3, 3, 3, 3, 0, 0,16,17 ],
   ];
+  protected interactiveTiles: { [x: number]: { [y: number]: ( d: Direction ) => IAnimation[] }} = {
+    0: {
+      1: ( d: Direction ): IAnimation[] => {
+        if ( d === Direction.up ) {
+          return this.oc.createTextActionSequence( "It's full of books." );
+        }
+      }
+    },
+    1: {
+      1: ( d: Direction ): IAnimation[] => {
+        if ( d === Direction.up ) {
+          return this.oc.createTextActionSequence( "It's full of books." );
+        }
+      }
+    },
+    2: {
+      4: ( d: Direction ): IAnimation[] => {
+        if ( d === Direction.up ) {
+          return this.oc.createTextActionSequence( "N plays the SNES... \nTime to go!" );
+        }
+      },
+
+    }
+  };
   private tileHash: { [index: number]: Point | { [index: number]: Point } } = {
     0: new Point( 8 * 1, 0 ),
     1: new Point( 0, 0 ),
@@ -224,7 +282,7 @@ export class HouseMap extends BaseMap implements ITileMap {
   }
   public legsUnderGrass( _: Player ): boolean { return false; }
 }
-export class TileMap2 extends BaseMap implements ITileMap {
+export class TileMap2 extends BaseMap implements ITileMap { // outdoor map
   private numAnimations = 8;
   private renderCount = 0;
   private animationStage = 0;
@@ -289,6 +347,43 @@ export class TileMap2 extends BaseMap implements ITileMap {
     [ 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 34,34,34,34, 5, 5, 5, 5],
     [ 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 34,34,34,34, 5, 5, 5, 4],
   ];
+  protected interactiveTiles: { [x: number]: { [y: number]: ( d: Direction ) => IAnimation[] }} = {
+    7: {
+      5: ( d: Direction ): IAnimation[] => {
+        if ( d === Direction.up ) {
+          return this.oc.createTextActionSequence( "N's House" );
+        }
+      },
+    }
+  }
+  // public getInteractiveTileAction( p: Player ): IAnimation[] | null {
+  //   let x, y;
+  //   switch ( p.dir ) {
+  //     case Direction.up:
+  //       x = p.tilePos.x;
+  //       y = p.tilePos.y-1;
+  //       break;
+  //     case Direction.down:
+  //       x = p.tilePos.x;
+  //       y = p.tilePos.y+1;
+  //       break;
+  //     case Direction.left:
+  //       x = p.tilePos.x-1;
+  //       y = p.tilePos.y;
+  //       break;
+  //     case Direction.right:
+  //       x = p.tilePos.x+1;
+  //       y = p.tilePos.y;
+  //       break;
+  //   }
+  //   let actions: IAnimation[] = null
+  //   try {
+  //     const f = this.interactiveTiles[x][y];
+  //     actions = f( p.dir );
+  //   }
+  //   catch {}
+  //   return actions;
+  // }
   private tileHash: { [index: number]: Point | { [index:number]: Point } } = {
     0: new Point( 8*12, 8*2 ), // rough grass
     1: {
@@ -353,7 +448,10 @@ export class TileMap2 extends BaseMap implements ITileMap {
     39: new Point( 8*6, 8*5 ), // sign bottom
     40: new Point( 8*7, 8*5 ), // sign bottom
   };
-  constructor( private doorAction: () => IAnimation[] ) {
+  constructor(
+    private doorAction: () => IAnimation[],
+    private oc: OutputController,
+    ) {
     super();
   }
   public render( ctx: CanvasRenderingContext2D, src: HTMLCanvasElement ): void {

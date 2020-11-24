@@ -55,8 +55,11 @@ async function main(): Promise<void> {
       },
     },
     getFadeInAction( ctx, altCtx, renderFlags ),
-  ] );
-  const houseMap = new HouseMap( () => [
+  ],
+  outputController,
+  );
+  const houseMap = new HouseMap(
+    () => [
     getFadeOutAction( ctx, altCtx, renderFlags ),
     {
       frames: 1,
@@ -71,7 +74,9 @@ async function main(): Promise<void> {
       },
     },
     getFadeInAction( ctx, altCtx, renderFlags ),
-  ] );
+  ],
+  outputController,
+  );
   const mc = new MapController( [townMap, houseMap], 1, tileset.img );
   const renderFlags: IRenderFlags = {
     renderOverrideFlag: false,
