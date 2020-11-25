@@ -1,10 +1,52 @@
 // nature animations start: (231, 47)
+const SCREEN_TILE_HEIGHT = 9;
+const SCREEN_TILE_WIDTH = 10;
 import { Point, Player, applyColorPallette, Direction, NPC } from '.';
 import { ITileMap, IAnimation } from '../types';
 import { AnimationController } from './animationController';
 import { OutputController } from './outputController';
 import { Rect } from './rect';
 
+const houseTileHash: { [index: number]: Point } = {
+    0: new Point( 8 * 1, 0 ),
+    1: new Point( 0, 0 ),
+    2: new Point( 8 * 4, 0 ), // doormat 
+    3: new Point( 8 * 4, 8 ), // doormat 
+    4: new Point( 8 * 6, 0 ), // tv
+    5: new Point( 8 * 7, 0 ), // tv
+    6: new Point( 8 * 6, 8 ), // tv
+    7: new Point( 8 * 7, 8 ), // tv
+    8: new Point( 8 * 14, 0 ), // snes
+    9: new Point( 8 * 15, 0 ), // snes
+    10: new Point( 8 * 14, 8 ), // snes
+    11: new Point( 8 * 15, 8 ), // snes
+    12: new Point( 8*4, 8*2 ), // window
+    13: new Point( 8*5, 8*2 ), // window
+    14: new Point( 8*4, 8*3 ), // window
+    15: new Point( 8*5, 8*3 ), // window
+    16: new Point( 8*8, 8*1 ), // plant base
+    17: new Point( 8*9, 8*1 ), // plant base
+    18: new Point( 8*6, 8*4 ), // plant base
+    19: new Point( 8*7, 8*4 ), // plant base
+    20: new Point( 8*8, 8*0 ), // plant 
+    21: new Point( 8*9, 8*0 ), // plant 
+    22: new Point( 8*4, 8*4 ), // plant 
+    23: new Point( 8*5, 8*4 ), // plant 
+    24: new Point( 8*13, 8*2 ), // bed top
+    25: new Point( 8*14, 8*2 ), // bed top
+    26: new Point( 8*13, 8*3 ), // bed mid
+    27: new Point( 8*14, 8*3 ), // bed mid
+    28: new Point( 8*15, 8*3 ), // bed bottom
+    29: new Point( 8*15, 8*2 ), // bed bottom
+    30: new Point( 8*6, 8*2 ), // bookshelf top left
+    31: new Point( 8*9, 8*2 ), // bookshelf top right
+    32: new Point( 8*0, 8*3 ), // bookshelf
+    33: new Point( 8*1, 8*3 ), // bookshelf
+    34: new Point( 8*2, 8*2 ), // bookshelf
+    35: new Point( 8*3, 8*2 ), // bookshelf
+    36: new Point( 8*2, 8*3 ), // bookshelf
+    37: new Point( 8*3, 8*3 ), // bookshelf
+  };
 export class MapController implements ITileMap {
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
@@ -97,7 +139,7 @@ abstract class BaseMap implements ITileMap {
   protected abstract actionMap: ( ()=>IAnimation[] )[][];
   protected abstract interactiveTiles: { [x: number]: { [y: number]: ( d: Direction ) => IAnimation[] }};
   public getInteractiveTileAction( p: Player ): IAnimation[] | null {
-    let x, y;
+    let x: number, y: number;
     switch ( p.dir ) {
       case Direction.up:
         x = p.tilePos.x;
@@ -154,6 +196,88 @@ abstract class BaseMap implements ITileMap {
     }
   }
 }
+export class HouseMap2 extends BaseMap implements ITileMap {
+  constructor(
+    private doorAction: ()=>IAnimation[],
+    private oc: OutputController,
+  ) {
+    super();
+  }
+  public x = 0;
+  public y = 0;
+  public w16 = 8;
+  public h16 = 8;
+  protected walkableMap = [
+    [ 1, 1, 1, 1, 1, 1, 1, 1 ],
+    [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+    [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+    [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+    [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+    [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+    [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+    [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+  ];
+  protected actionMap: ( () => IAnimation[] )[][] = [
+    [ null,null,null,null,null,null,null,null, ],
+    [ null,null,null,null,null,null,null,null, ],
+    [ null,null,null,null,null,null,null,null, ],
+    [ null,null,null,null,null,null,null,null, ],
+    [ null,null,null,null,null,null,null,null, ],
+    [ null,null,null,null,null,null,null,null, ],
+    [ null,null,null,null,null,null,null,null, ],
+    [ null,null,null,null,null,null,null,null, ],
+    [ null,null,null,null,this.doorAction,this.doorAction,null,null, ],
+  ];
+  private tileAtlas: number[][] = [
+    [ 1, 1, 1, 1, 1, 1, 1, 1,  1, 1, 1, 1, 1, 1, 1, 1, ],
+    [ 1, 1, 1, 1, 1, 1, 1, 1,  1, 1, 1, 1, 1, 1, 1, 1, ],
+    [ 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, ],
+    [ 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, ],
+    [ 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, ],
+    [ 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, ],
+    [ 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, ],
+    [ 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, ],
+  
+    [ 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, ],
+    [ 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, ],
+    [ 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, ],
+    [ 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, ],
+    [ 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, ],
+    [ 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, ],
+    [ 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, ],
+    [ 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, ],
+  ];
+  protected npcs: NPC[] = [];
+  protected interactiveTiles = {};
+  private tileHash = houseTileHash;
+  public render( ctx: CanvasRenderingContext2D, src: HTMLCanvasElement ): void {
+    const srcYOffset = 16 * 3; // tileset for this room beings at 16 * 3 (y)
+    for ( let y = 0; y < this.h16*2; y++ ) {
+      for ( let x = 0; x < this.w16*2; x++ ) {
+        let sx, sy;
+        const atlas = this.tileHash[this.tileAtlas[y][x]];
+        if ( atlas instanceof Point ) {
+            sx = atlas.x;
+            sy = atlas.y + srcYOffset;
+        } else {
+          // no animations
+        }
+        ctx.drawImage(
+          src,
+          sx,
+          sy,
+          8,
+          8,
+          this.x + 8 * x,
+          this.y + 8 * y,
+          8,
+          8,
+        );
+      }
+    }
+  }
+  public legsUnderGrass( p: Player ): boolean { return false; }
+}
 export class HouseMap extends BaseMap implements ITileMap {
   constructor(
     private doorAction: ()=>IAnimation[],
@@ -206,7 +330,7 @@ export class HouseMap extends BaseMap implements ITileMap {
     [16,17, 0, 0, 0, 0, 0, 0,  3, 3, 3, 3, 0, 0,16,17 ],
   ];
   protected npcs: NPC[] = [];
-  protected interactiveTiles: { [x: number]: { [y: number]: ( d: Direction ) => IAnimation[] }} = {
+  protected interactiveTiles = {
     0: {
       1: ( d: Direction ): IAnimation[] => {
         if ( d === Direction.up ) {
@@ -230,46 +354,7 @@ export class HouseMap extends BaseMap implements ITileMap {
 
     }
   };
-  private tileHash: { [index: number]: Point | { [index: number]: Point } } = {
-    0: new Point( 8 * 1, 0 ),
-    1: new Point( 0, 0 ),
-    2: new Point( 8 * 4, 0 ), // doormat 
-    3: new Point( 8 * 4, 8 ), // doormat 
-    4: new Point( 8 * 6, 0 ), // tv
-    5: new Point( 8 * 7, 0 ), // tv
-    6: new Point( 8 * 6, 8 ), // tv
-    7: new Point( 8 * 7, 8 ), // tv
-    8: new Point( 8 * 14, 0 ), // snes
-    9: new Point( 8 * 15, 0 ), // snes
-    10: new Point( 8 * 14, 8 ), // snes
-    11: new Point( 8 * 15, 8 ), // snes
-    12: new Point( 8*4, 8*2 ), // window
-    13: new Point( 8*5, 8*2 ), // window
-    14: new Point( 8*4, 8*3 ), // window
-    15: new Point( 8*5, 8*3 ), // window
-    16: new Point( 8*8, 8*1 ), // plant base
-    17: new Point( 8*9, 8*1 ), // plant base
-    18: new Point( 8*6, 8*4 ), // plant base
-    19: new Point( 8*7, 8*4 ), // plant base
-    20: new Point( 8*8, 8*0 ), // plant 
-    21: new Point( 8*9, 8*0 ), // plant 
-    22: new Point( 8*4, 8*4 ), // plant 
-    23: new Point( 8*5, 8*4 ), // plant 
-    24: new Point( 8*13, 8*2 ), // bed top
-    25: new Point( 8*14, 8*2 ), // bed top
-    26: new Point( 8*13, 8*3 ), // bed mid
-    27: new Point( 8*14, 8*3 ), // bed mid
-    28: new Point( 8*15, 8*3 ), // bed bottom
-    29: new Point( 8*15, 8*2 ), // bed bottom
-    30: new Point( 8*6, 8*2 ), // bookshelf top left
-    31: new Point( 8*9, 8*2 ), // bookshelf top right
-    32: new Point( 8*0, 8*3 ), // bookshelf
-    33: new Point( 8*1, 8*3 ), // bookshelf
-    34: new Point( 8*2, 8*2 ), // bookshelf
-    35: new Point( 8*3, 8*2 ), // bookshelf
-    36: new Point( 8*2, 8*3 ), // bookshelf
-    37: new Point( 8*3, 8*3 ), // bookshelf
-  };
+  private tileHash = houseTileHash;
   public render( ctx: CanvasRenderingContext2D, src: HTMLCanvasElement ): void {
     const srcYOffset = 16 * 3; // tileset for this room beings at 16 * 3 (y)
     for ( let y = 0; y < this.h16*2; y++ ) {
@@ -303,18 +388,34 @@ export class TileMap2 extends BaseMap implements ITileMap { // outdoor map
   private renderCount = 0;
   private animationStage = 0;
   public w16 = 12;
-  public h16 = 12;
+  public h16 = 28;
   public x = 0;
   public y = 0;
   private w = 24;
-  private h = 24;
+  private h = 56;
   protected actionMap: ( () => IAnimation[] )[][] = [
     [ null, null, null, null, null, null, null, null, null, null, null, null ],
     [ null, null, null, null, null, null, null, null, null, null, null, null ],
     [ null, null, null, null, null, null, null, null, null, null, null, null ],
     [ null, null, null, null, null, null, null, null, null, null, null, null ],
     [ null, null, null, null, null, null, null, null, null, null, null, null ],
-    [ null, null, this.doorAction, null, null, null, null, null, null, null, this.doorAction, null ],
+    [ null, null, this.doorAction2, null, null, null, null, null, null, null, this.doorAction, null ],
+    [ null, null, null, null, null, null, null, null, null, null, null, null ],
+    [ null, null, null, null, null, null, null, null, null, null, null, null ],
+    [ null, null, null, null, null, null, null, null, null, null, null, null ],
+    [ null, null, null, null, null, null, null, null, null, null, null, null ],
+    [ null, null, null, null, null, null, null, null, null, null, null, null ],
+    [ null, null, null, null, null, null, null, null, null, null, null, null ],
+    [ null, null, null, null, null, null, null, null, null, null, null, null ],
+    [ null, null, null, null, null, null, null, null, null, null, null, null ],
+    [ null, null, null, null, null, null, null, null, null, null, null, null ],
+    [ null, null, null, null, null, null, null, null, null, null, null, null ],
+    [ null, null, null, null, null, null, null, null, null, null, null, null ],
+    [ null, null, this.doorAction2, null, null, null, null, null, null, null, this.doorAction, null ],
+    [ null, null, null, null, null, null, null, null, null, null, null, null ],
+    [ null, null, null, null, null, null, null, null, null, null, null, null ],
+    [ null, null, null, null, null, null, null, null, null, null, null, null ],
+    [ null, null, null, null, null, null, null, null, null, null, null, null ],
     [ null, null, null, null, null, null, null, null, null, null, null, null ],
     [ null, null, null, null, null, null, null, null, null, null, null, null ],
     [ null, null, null, null, null, null, null, null, null, null, null, null ],
@@ -332,6 +433,22 @@ export class TileMap2 extends BaseMap implements ITileMap { // outdoor map
     [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
     [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
     [ 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 ],
+    [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+    [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+    [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+    [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+    [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+    [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+    [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+    [ 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1 ],
+    [ 1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1 ],
+    [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+    [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+    [ 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 ],
+    [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+    [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+    [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+    [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
     [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
     [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
     [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
@@ -361,6 +478,39 @@ export class TileMap2 extends BaseMap implements ITileMap { // outdoor map
     [ 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 1, 0, 1, 0, 4, 4, 34,34,34,34, 5, 5, 5, 5],
     [ 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 0, 1, 0, 1, 4, 4, 34,34,34,34, 5, 4, 5, 5],
     [ 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 34,34,34,34, 5, 5, 5, 5],
+    [ 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 34,34,34,34, 5, 5, 5, 4],
+    [ 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 0, 1, 0, 4, 4, 34,34,34,34, 5, 5, 5, 5],
+    [ 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0, 1, 0, 1, 4, 4, 34,34,34,34, 5, 5, 5, 5],
+    [ 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 0, 1, 0, 4, 4, 34,34,34,34, 5, 5, 5, 5],
+    [ 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0, 1, 0, 1, 4, 4, 34,34,34,34, 5, 5, 5, 5],
+    [ 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 0, 1, 0, 4, 4, 34,34,34,34, 5, 5, 5, 4],
+    [ 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0, 1, 0, 1, 4, 4, 34,34,34,34, 5, 5, 5, 4],
+    [ 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 34,34,34,34, 5, 5, 5, 4],
+    [ 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 34,34,34,34, 5, 5, 5, 4],
+
+    [ 8,11,14,14,14,14,24,26, 5, 5, 5, 5, 4, 4, 4, 4,  8,11,14,14,14,14,24,26],
+    [ 9,12,15,15,15,15,25,27, 5, 4, 5, 5, 4, 4, 4, 4,  9,12,15,15,15,15,25,27],
+    [10,13,16,16,17,18,28,29, 5, 5, 5, 5, 4, 4,37,38, 10,13,16,16,17,18,28,29],
+    [21,23,23,23,19,20,23,22, 5, 5, 5, 4, 4, 4,39,40, 21,23,23,23,19,20,23,22],
+    [ 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,  1, 0, 1, 0, 5, 5, 5, 5],
+    [ 5, 4, 5, 5, 5, 4, 5, 5, 5, 4, 5, 5, 5, 4, 5, 5,  0, 1, 0, 1, 5, 4, 5, 5],
+    [ 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,  5, 5, 5, 5, 5, 5, 5, 5],
+    [ 5, 5, 5, 4, 5, 5, 5, 4, 5, 5, 5, 4, 5, 5, 5, 4,  5, 5, 5, 4, 5, 5, 5, 4],
+    [35,35,35,35,35,35,37,38, 4, 4, 1, 0, 1, 0, 4, 4, 34,34,34,34, 5, 5, 5, 5],
+    [36,36,36,36,36,36,39,40, 4, 4, 0, 1, 0, 1, 4, 4, 34,34,34,34, 5, 4, 5, 5],
+    [ 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 1, 0, 1, 0, 4, 4, 34,34,34,34, 5, 5, 5, 5],
+    [ 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 0, 1, 0, 1, 4, 4, 34,34,34,34, 5, 5, 5, 4],
+    [ 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 1, 0, 1, 0, 4, 4, 34,34,34,34, 5, 5, 5, 5],
+    [ 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 0, 1, 0, 1, 4, 4, 34,34,34,34, 5, 4, 5, 5],
+    [ 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 34,34,34,34, 5, 5, 5, 5],
+    [ 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 34,34,34,34, 5, 5, 5, 4],
+    [ 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 34,34,34,34, 5, 5, 5, 5],
+    [ 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 34,34,34,34, 5, 5, 5, 5],
+    [ 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 34,34,34,34, 5, 5, 5, 5],
+    [ 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 34,34,34,34, 5, 5, 5, 5],
+    [ 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 34,34,34,34, 5, 5, 5, 4],
+    [ 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 34,34,34,34, 5, 5, 5, 4],
+    [ 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 34,34,34,34, 5, 5, 5, 4],
     [ 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 34,34,34,34, 5, 5, 5, 4],
   ];
   protected interactiveTiles: { [x: number]: { [y: number]: ( d: Direction ) => IAnimation[] }} = {
@@ -438,6 +588,7 @@ export class TileMap2 extends BaseMap implements ITileMap { // outdoor map
   };
   constructor(
     private doorAction: () => IAnimation[],
+    private doorAction2: () => IAnimation[],
     private oc: OutputController,
     private npcCanvas: HTMLCanvasElement,
     private p: Player,
@@ -454,6 +605,17 @@ export class TileMap2 extends BaseMap implements ITileMap { // outdoor map
       this,
       this.p,
       this.ac,
+      'girl',
+    ),
+    new NPC(
+      this.npcCanvas,
+      new Rect( 16, 16*2, 16, 16 ),
+      new Point( 2,10 ),
+      this.oc,
+      this,
+      this.p,
+      this.ac,
+      'boy',
     )
   ];
   public render( ctx: CanvasRenderingContext2D, src: HTMLCanvasElement ): void {
@@ -463,8 +625,20 @@ export class TileMap2 extends BaseMap implements ITileMap { // outdoor map
             this.animationStage = 0;
         }
     }
-    for ( let y = 0; y < this.h; y++ ) {
-      for ( let x = 0; x < this.w; x++ ) {
+    // TODO only render onscreen tiles
+    // h and w are in 8-pixel tiles
+    // to get top left and right 
+    // this.x, this.y are in pixel terms offset
+    let tileX = Math.floor( this.x / 8 );
+    let tileY = Math.floor( this.y / 8 );
+    tileX = tileX < 0 ? Math.abs( tileX ) : 0;
+    tileY = tileY < 0 ? Math.abs( tileY ) : 0;
+
+    const bottomTileX = Math.min( tileX + 20, this.w );
+    const bottomTileY = Math.min( tileY + 18, this.h );
+
+    for ( let y = tileY; y < bottomTileY; y++ ) { 
+      for ( let x = tileX; x < bottomTileX; x++ ) {
         let sx, sy;
         const atlas = this.tileHash[this.tileAtlas2[y][x]];
         if ( atlas instanceof Point ) {
@@ -487,8 +661,20 @@ export class TileMap2 extends BaseMap implements ITileMap { // outdoor map
         );
       }
     }
-    // render NPC's
-    this.npcs.forEach( npc => npc.render( ctx, this.x, this.y ) );
+    // render NPC's if on visible screen
+    this.npcs.forEach( npc => {
+      if (
+        ( npc.tilePos.x >= this.p.tilePos.x - 4
+          && npc.tilePos.x <= this.p.tilePos.x + 5
+          )
+        &&
+        ( npc.tilePos.y >= this.p.tilePos.y - 4
+          && npc.tilePos.y <= this.p.tilePos.y + 4
+          )
+        ) {
+          npc.render( ctx, this.x, this.y );
+        }
+    } );
     this.renderCount ++;
   }
   public legsUnderGrass( p: Player ): boolean {

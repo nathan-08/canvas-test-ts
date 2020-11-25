@@ -1,6 +1,9 @@
 import { applyColorPallette, formatText } from '.';
 import { IAnimation, IKeys, ITextPage } from '../types';
 
+const canvasWidth = 16*10;
+const canvasHeight = 16*9;
+
 export class OutputController {
   public showDialog = false;
   private line1 = '';
@@ -117,8 +120,8 @@ export class OutputController {
     line1: string,
     line2?: string,
   ) {
-    this.renderLine( ctx, line1, 8, ctx.canvas.height - 8 * 4.5 );
-    if ( line2 ) this.renderLine( ctx, line2, 8, ctx.canvas.height - 8 * 2.5 );
+    this.renderLine( ctx, line1, 8, canvasHeight - 8 * 4.5 );
+    if ( line2 ) this.renderLine( ctx, line2, 8, canvasHeight - 8 * 2.5 );
   }
   private renderLine(
     ctx: CanvasRenderingContext2D,
@@ -331,14 +334,14 @@ export class OutputController {
       8 * 2,
       8,
       8,
-      ctx.canvas.width - 8 * 2,
-      ctx.canvas.height - 8 * 2,
+      canvasWidth - 8 * 2,
+      canvasHeight - 8 * 2,
       8,
       8,
     );
   }
   private drawBox( ctx: CanvasRenderingContext2D ): void {
-    ctx.fillRect( 0, ctx.canvas.height - 8 * 6, ctx.canvas.width, 8 * 6 );
+    ctx.fillRect( 0, canvasHeight - 8 * 6, canvasWidth, 8 * 6 );
     // draw border
     ctx.drawImage(
       // top left
@@ -348,7 +351,7 @@ export class OutputController {
       8,
       8,
       0,
-      ctx.canvas.height - 8 * 6,
+      canvasHeight - 8 * 6,
       8,
       8,
     );
@@ -360,7 +363,7 @@ export class OutputController {
       8,
       8,
       0,
-      ctx.canvas.height - 8,
+      canvasHeight - 8,
       8,
       8,
     );
@@ -371,8 +374,8 @@ export class OutputController {
       8 * 3,
       8,
       8,
-      ctx.canvas.width - 8,
-      ctx.canvas.height - 8 * 6,
+      canvasWidth-8,
+      canvasHeight - 8 * 6,
       8,
       8,
     );
@@ -383,8 +386,8 @@ export class OutputController {
       8 * 5,
       8,
       8,
-      ctx.canvas.width - 8,
-      ctx.canvas.height - 8,
+      canvasWidth - 8,
+      canvasHeight - 8,
       8,
       8,
     );
@@ -397,7 +400,7 @@ export class OutputController {
         8,
         8,
         8 + 8 * i,
-        ctx.canvas.height - 8 * 6,
+        canvasHeight - 8 * 6,
         8,
         8,
       );
@@ -411,7 +414,7 @@ export class OutputController {
         8,
         8,
         8 + 8 * i,
-        ctx.canvas.height - 8,
+        canvasHeight - 8,
         8,
         8,
       );
@@ -425,7 +428,7 @@ export class OutputController {
         8,
         8,
         0,
-        ctx.canvas.height - 8 * ( i + 2 ),
+        canvasHeight - 8 * ( i + 2 ),
         8,
         8,
       );
@@ -438,8 +441,8 @@ export class OutputController {
         8 * 4,
         8,
         8,
-        ctx.canvas.width - 8,
-        ctx.canvas.height - 8 * ( i + 2 ),
+        canvasWidth - 8,
+        canvasHeight - 8 * ( i + 2 ),
         8,
         8,
       );

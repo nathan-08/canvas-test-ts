@@ -18,6 +18,7 @@ export class NPC {
     private tileMap: ITileMap,
     private p: Player,
     private ac: AnimationController,
+    public name: string,
   ) {
     this.pixelPos = new Point( this.tilePos.x * 16, this.tilePos.y * 16 );
   }
@@ -164,4 +165,16 @@ export const girlSprites: Rect[] = [
   new Rect( 16 * 7 + 16, 16 * 8.5, 16, 16 ),
   new Rect( 16 * 8 + 17, 16 * 8.5, 16, 16 ),
   new Rect( 16 * 9 + 18, 16 * 8.5, 16, 16 ),
+];
+export const boySprites2: Rect[] = [
+  new Rect( 16 * 0 + 9,  16 * 5.5-3 , 16, 16 ),
+  new Rect( 16 * 1 + 10, 16 * 5.5-3 , 16, 16 ),
+  new Rect( 16 * 2 + 11, 16 * 5.5-3 , 16, 16 ),
+  new Rect( 16 * 3 + 12, 16 * 5.5-3 , 16, 16 ),
+  new Rect( 16 * 4 + 13, 16 * 5.5-3 , 16, 16 ),
+  new Rect( 16 * 5 + 14, 16 * 5.5-3 , 16, 16 ),
+  new Rect( 16 * 6 + 15, 16 * 5.5-3 , 16, 16 ),
+  new Rect( 16 * 7 + 16, 16 * 5.5-3 , 16, 16 ),
+  new Rect( 16 * 8 + 17, 16 * 5.5-3 , 16, 16 ),
+  new Rect( 16 * 9 + 18, 16 * 5.5-3 , 16, 16 ),
 ];

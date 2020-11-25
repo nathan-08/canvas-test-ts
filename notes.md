@@ -20,3 +20,5 @@ conditionally to draw bottom half of player underneath tall grass
 canvas.style.backgroundColor = 'rgb(248,248,248)'
 
 # implement a palette-based fade-out/fade-in sequence
+
+# write function to convert player coordinates to map offset

@@ -1,4 +1,4 @@
-import { Direction, Point, Rect, applyColorPallette, boySprites, girlSprites } from '.';
+import { Direction, Point, Rect, applyColorPallette, boySprites, boySprites2, girlSprites } from '.';
 
 export class Player {
   public isMoving = false;
@@ -15,15 +15,16 @@ export class Player {
   ) {
     this.canvas = document.createElement( 'canvas' );
     this.canvas.width = 128 + 32;
-    this.canvas.height = 16 * 2;
+    this.canvas.height = 16 * 3;
     this.canvas.setAttribute(
       'style',
-      `image-rendering: pixelated; width: ${( 128+32 ) * 4}px; height: ${
-        16 * 2 * 4
+      `image-rendering: pixelated; width: ${
+        this.canvas.width * 4}px; height: ${
+        this.canvas.height * 4
       }px; background: rgb(0,0,255);`,
     );
     this.ctx = this.canvas.getContext( '2d' );
-    document.body.appendChild( this.canvas );
+    // document.body.appendChild( this.canvas );
     for ( let i = 0; i < 10; i++ ) {
       this.ctx.drawImage(
         this.src,
@@ -45,7 +46,20 @@ export class Player {
         16,
         16,
         16 * i,
+        16 * 1,
         16,
+        16,
+      );
+    }
+    for ( let i = 0; i < 10; i++ ) {
+      this.ctx.drawImage(
+        this.src,
+        boySprites2[i].x,
+        boySprites2[i].y,
+        16,
+        16,
+        16 * i,
+        16 * 2,
         16,
         16,
       );
