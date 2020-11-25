@@ -8,7 +8,6 @@ export { ImageAsset } from './imageAsset';
 export { imgDataToImage } from './imgDataToImage';
 export { drawSprite } from './drawSprite';
 export { getPlayerImgs } from './getPlayerImgs';
-export { MapController, TileMap2, HouseMap } from './tileMap2';
 export { OutputController } from './outputController';
 export { applyColorPallette } from './applyColorPallette';
 export { formatText } from './formatText';

@@ -2,20 +2,17 @@ import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import {
   Player,
-  TileMap2,
   Point,
   IOController,
   AnimationController,
   ImageAsset,
   OutputController,
-  MapController,
-  HouseMap,
 } from './lib';
 import { IRenderFlags } from './types';
 import { getFadeInAction, getFadeOutAction } from './actions';
 import { colorscheme } from './colorscheme';
 import { version } from '../package.json';
-import { HouseMap2 } from './lib/tileMap2';
+import { MapController, HouseMap, TownMap, HouseMap2 } from './maps';
 
 window.onload = main;
 
@@ -46,7 +43,7 @@ async function main(): Promise<void> {
   const outputController = new OutputController( fontTileset.img );
   const io = new IOController();
   const ac = new AnimationController();
-  const townMap = new TileMap2(
+  const townMap = new TownMap(
     () => [
     getFadeOutAction( ctx, altCtx, renderFlags ), // to right house
     {

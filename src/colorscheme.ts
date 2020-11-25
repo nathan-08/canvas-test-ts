@@ -29,4 +29,4 @@ const idk = {
   lightest: [224,210,195],
 };
 
-export const colorscheme = bluescale;
+export const colorscheme = pastelle;

@@ -6,6 +6,7 @@ export interface ITileMap {
   getInteractiveTileAction( p: Player ): IAnimation[] | null;
   render( ctx: CanvasRenderingContext2D, src?: HTMLCanvasElement ): void;
   legsUnderGrass( p: Player ): boolean;
+  preRender( src: HTMLCanvasElement ): void;
   x: number;
   y: number;
   w16: number;

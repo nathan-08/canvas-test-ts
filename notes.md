@@ -1,4 +1,10 @@
 ## TODO
+
+( ) write function to convert player coordinates to map offset!!
+
+( ) try prerendering map to array of canvases (for animated maps)
+( ) and then blitting the viewable section to screen -- tall grass stuff makes this trickier
+
 # add textController
 ( ) parse text
 ( ) generate actions
@@ -21,4 +27,3 @@ canvas.style.backgroundColor = 'rgb(248,248,248)'
 
 # implement a palette-based fade-out/fade-in sequence
 
-# write function to convert player coordinates to map offset
